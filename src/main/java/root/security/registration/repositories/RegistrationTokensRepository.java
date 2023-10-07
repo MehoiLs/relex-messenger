@@ -9,5 +9,4 @@ import java.util.UUID;
 
 public interface RegistrationTokensRepository extends CrudRepository<RegistrationToken, String> {
     Optional<RegistrationToken> findByUser(User user);
-    void deleteByToken(String token);
 }

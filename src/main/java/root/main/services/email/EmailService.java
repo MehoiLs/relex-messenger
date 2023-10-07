@@ -1,4 +1,4 @@
-package root.main.services;
+package root.main.services.email;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +29,15 @@ public class EmailService {
     public void sendEmailAsync(@NotNull SimpleMailMessage mailMessage) {
         if(mailMessage.getTo() == null) return;
 
-        int currentRetry = 0;
-        while (currentRetry < maxSendRetries) {
+        int currentRetry = 1;
+        while (currentRetry <= maxSendRetries) {
             try {
                 javaMailSender.send(mailMessage);
-                log.info("The letter: \"" + mailMessage.getSubject() + "\" has been successfully sent to " +
+                log.info("[MAIL SERVICE] The letter: \"" + mailMessage.getSubject() + "\" has been successfully sent to " +
                         Arrays.toString(mailMessage.getTo()) + ".");
                 break;
             } catch (MailException e) {
-                log.warn("Attempt " + (currentRetry+1) + " to resend the letter: \"" + mailMessage.getSubject() + "\"...");
+                log.warn("[MAIL SERVICE] Attempt " + currentRetry + " to resend the letter: \"" + mailMessage.getSubject() + "\"...");
                 currentRetry++;
                 try { Thread.sleep(10000); } catch (InterruptedException ignored) {}
             }

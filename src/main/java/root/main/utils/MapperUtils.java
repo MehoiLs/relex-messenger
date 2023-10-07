@@ -38,7 +38,6 @@ public final class MapperUtils {
         if(!profile.getUsername().isEmpty()) user.setUsername(profile.getUsername());
         if(!profile.getFirstName().isEmpty()) user.setFirstName(profile.getFirstName());
         if(!profile.getLastName().isEmpty()) user.setLastName(profile.getLastName());
-        if(!profile.getEmail().isEmpty()) user.setEmail(profile.getEmail());
         return user;
     }
 

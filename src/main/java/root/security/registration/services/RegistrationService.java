@@ -1,19 +1,15 @@
 package root.security.registration.services;
 
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionException;
 import root.main.data.User;
 import root.main.exceptions.RegistrationException;
 import root.main.services.UserService;
 import root.main.utils.MessagesUtils;
-import root.security.registration.data.RegistrationToken;
 
-import java.time.LocalDate;
 import java.util.stream.StreamSupport;
 
 @Slf4j
@@ -39,7 +35,7 @@ public class RegistrationService {
         if(possibleUser != null && !possibleUser.isEnabled()) {
             emailConfirmationService.sendConfirmationEmail(possibleUser);
             log.info("[REGISTRATION SERVICE] A non-enabled user requested a confirmation: " + possibleUser.getLogin());
-            return MessagesUtils.registrationConfirmationLetterRequestMsg;
+            return MessagesUtils.requestConfirmationLetterAgain;
         }
         else { // New user
             if (!providedEmailIsUnique(newUser.getEmail()))

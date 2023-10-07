@@ -8,6 +8,7 @@ import root.main.data.User;
 import root.main.data.dto.UserProfileEditInfoDTO;
 import root.main.exceptions.UserProfileEditException;
 import root.main.repositories.UserRepository;
+import root.main.services.email.EmailTokenChangeService;
 import root.main.utils.MapperUtils;
 import root.main.utils.ValidationUtils;
 
@@ -58,26 +59,6 @@ public class UserService {
     public void setActiveSession(User user, boolean isActive) {
         user.setHasActiveSession(isActive);
         save(user);
-    }
-
-    // ADDITIONAL OPERATIONS
-    public User changeUserProfileInfo(@NotNull User user,
-                                      @NotNull UserProfileEditInfoDTO profileEditInfo) throws UserProfileEditException {
-        if(!ValidationUtils.isValidEmail(profileEditInfo.getEmail()) && !profileEditInfo.getEmail().isEmpty())
-            throw new UserProfileEditException("Couldn't change profile info. Invalid e-mail.");
-        else if(!ValidationUtils.isValidFirstNameOrLastName(profileEditInfo.getFirstName()))
-            throw new UserProfileEditException("Couldn't change profile info. Invalid first name.");
-        else if(!ValidationUtils.isValidFirstNameOrLastName(profileEditInfo.getLastName()))
-            throw new UserProfileEditException("Couldn't change profile info. Invalid last name.");
-
-        return save(MapperUtils.mapUserProfileInfoToExistingUser(profileEditInfo, user));
-    }
-
-    public void changeUserEmail(@NotNull User user, @NotNull String email) throws UserProfileEditException {
-        if(email.isEmpty()) return;
-        if(!ValidationUtils.isValidEmail(email))
-            throw new UserProfileEditException("Couldn't change profile info. Invalid e-mail.");
-
     }
 
     // SAVE & DELETE

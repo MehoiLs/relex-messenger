@@ -50,11 +50,11 @@ public class RegistrationTokenService {
         return registrationToken.isPresent();
     }
 
-    public boolean tokenIsExpired(@NotNull String token) {
-        Optional<RegistrationToken> registrationToken = registrationTokensRepository.findById(token);
-        return registrationToken.map(it -> it.getExpirationDate().before(new Date()))
-                .orElse(false);
-    }
+//    public boolean tokenIsExpired(@NotNull String token) {
+//        Optional<RegistrationToken> registrationToken = registrationTokensRepository.findById(token);
+//        return registrationToken.map(it -> it.getExpirationDate().before(new Date()))
+//                .orElse(false);
+//    }
 
     public boolean tokenIsExpiredByDate(@NotNull String token, @NotNull Date date) {
         Optional<RegistrationToken> registrationToken = registrationTokensRepository.findById(token);
@@ -67,7 +67,7 @@ public class RegistrationTokenService {
     }
 
     public void deleteToken(@NotNull String token) {
-        registrationTokensRepository.deleteByToken(token);
+        registrationTokensRepository.deleteById(token);
     }
 
     public void deleteToken(@NotNull RegistrationToken token) {
