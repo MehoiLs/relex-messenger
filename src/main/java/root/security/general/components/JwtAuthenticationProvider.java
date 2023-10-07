@@ -71,6 +71,7 @@ public class JwtAuthenticationProvider {
             if (tokensService.tokenIsInvalidated(token))
                 throw new TokenIsInvalidatedException("Token " + token + " is invalidated.");
 
+            userService.setLastOnline(user);
             return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
         } catch (TokenExpiredException tokenExpiredException) {
             throw tokenExpiredException;

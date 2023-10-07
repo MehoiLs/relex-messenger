@@ -1,21 +1,26 @@
-package root.main.services;
+package root.main.services.community;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import root.main.data.User;
-import root.main.data.dto.userprofile.UserProfileEditInfoDTO;
+import root.main.data.dto.userprofile.UserProfileEditDTO;
+import root.main.data.dto.userprofile.UserProfilePasswordDTO;
 import root.main.exceptions.ProfilePictureUploadException;
 import root.main.exceptions.UserProfileEditException;
+import root.main.services.UserService;
 import root.main.services.email.EmailTokenChangeService;
+import root.main.services.tokens.TokenChangeEmailService;
 import root.main.utils.MapperUtils;
 import root.main.utils.MessagesUtils;
 import root.main.utils.ValidationUtils;
+import root.security.general.components.CustomLogoutHandler;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,16 +32,24 @@ public class UserProfileService {
     private final UserService userService;
     private final EmailTokenChangeService emailTokenChangeService;
     private final TokenChangeEmailService tokenChangeEmailService;
+    private final CustomLogoutHandler logoutHandler;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserProfileService(UserService userService, EmailTokenChangeService emailTokenChangeService, TokenChangeEmailService tokenChangeEmailService) {
+    public UserProfileService(UserService userService,
+                              EmailTokenChangeService emailTokenChangeService,
+                              TokenChangeEmailService tokenChangeEmailService,
+                              CustomLogoutHandler logoutHandler,
+                              BCryptPasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.emailTokenChangeService = emailTokenChangeService;
         this.tokenChangeEmailService = tokenChangeEmailService;
+        this.logoutHandler = logoutHandler;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User changeUserProfileInfo(@NotNull User user,
-                                      @NotNull UserProfileEditInfoDTO profileEditInfo) throws UserProfileEditException {
+                                      @NotNull UserProfileEditDTO profileEditInfo) throws UserProfileEditException {
         if(!ValidationUtils.isValidFirstNameOrLastName(profileEditInfo.getFirstName()))
             throw new UserProfileEditException("Couldn't change profile info. Invalid first name.");
         if(!ValidationUtils.isValidFirstNameOrLastName(profileEditInfo.getLastName()))
@@ -51,7 +64,7 @@ public class UserProfileService {
             emailTokenChangeService.sendConfirmationEmail(user, email);
             log.info("[USER PROFILE SERVICE] User " + user.getLogin() + " has requested an e-mail change to \""
                     + email + "\" again.");
-            return MessagesUtils.requestConfirmationLetterAgain;
+            return MessagesUtils.requestConfirmationLetterAgainMsg;
         }
 
         if(!ValidationUtils.isValidEmail(email))
@@ -91,4 +104,32 @@ public class UserProfileService {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(pfpBytes);
         return new InputStreamResource(inputStream);
     }
+
+    public String changeUserPassword(@NotNull User user, @NotNull UserProfilePasswordDTO userProfilePassword)
+            throws UserProfileEditException{
+        if(!passwordEncoder.matches(userProfilePassword.getOldPassword(), user.getPassword()))
+            throw new UserProfileEditException("Your current password is incorrect.");
+
+        user.setPassword(passwordEncoder.encode(userProfilePassword.getNewPassword()));
+        userService.save(user);
+        return "You have successfully changed your password.";
+    }
+
+    public String prepareUserForDelete(@NotNull User user, @NotNull HttpServletRequest request)
+            throws UserProfileEditException {
+        user.setLocked(true);
+        user.setHasActiveSession(false);
+        try {
+            request.logout();
+        } catch (ServletException e) {
+            log.info("[USER PROFILE SERVICE] Error while preparing user: \"" + user.getLogin() + "\" for deleting.");
+            throw new UserProfileEditException("Could not process deleting your account.");
+        }
+        userService.save(user);
+        log.info("[USER PROFILE SERVICE] Prepared user: \"" + user.getLogin() + "\" for deleting.");
+        return "You have successfully deleted your account. However, it will remain deactivated for " +
+                "7 days, before it is deleted permanently. In case you want to restore your account, " +
+                "you will have to login with your credentials again.";
+    }
+
 }

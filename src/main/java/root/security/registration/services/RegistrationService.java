@@ -35,7 +35,7 @@ public class RegistrationService {
         if(possibleUser != null && !possibleUser.isEnabled()) {
             emailConfirmationService.sendConfirmationEmail(possibleUser);
             log.info("[REGISTRATION SERVICE] A non-enabled user requested a confirmation: " + possibleUser.getLogin());
-            return MessagesUtils.requestConfirmationLetterAgain;
+            return MessagesUtils.requestConfirmationLetterAgainMsg;
         }
         else { // New user
             if (!providedEmailIsUnique(newUser.getEmail()))

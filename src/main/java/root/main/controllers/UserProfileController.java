@@ -1,5 +1,6 @@
 package root.main.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
@@ -7,17 +8,16 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import root.main.data.User;
-import root.main.data.dto.userprofile.UserProfileEditInfoDTO;
-import root.main.data.dto.userprofile.UserProfileEmailInfoDTO;
-import root.main.data.dto.userprofile.UserProfileFullInfoDTO;
+import root.main.data.dto.userprofile.UserProfileEditDTO;
+import root.main.data.dto.userprofile.UserProfileEmailDTO;
+import root.main.data.dto.userprofile.UserProfileFullDTO;
+import root.main.data.dto.userprofile.UserProfilePasswordDTO;
 import root.main.exceptions.ProfilePictureUploadException;
 import root.main.exceptions.UserProfileEditException;
-import root.main.services.TokenChangeEmailService;
-import root.main.services.UserProfileService;
+import root.main.services.tokens.TokenChangeEmailService;
+import root.main.services.community.UserProfileService;
 import root.main.services.UserService;
 import root.main.utils.MapperUtils;
-
-import java.io.ByteArrayInputStream;
 
 @RestController
 @RequestMapping("/profile")
@@ -35,22 +35,22 @@ public class UserProfileController {
     }
 
     @GetMapping
-    public ResponseEntity<UserProfileFullInfoDTO> getUserProfileInfo(@AuthenticationPrincipal User user) {
-        UserProfileFullInfoDTO userProfile = MapperUtils.mapUserToUserFullProfileInfo(user);
+    public ResponseEntity<UserProfileFullDTO> getUserProfileInfo(@AuthenticationPrincipal User user) {
+        UserProfileFullDTO userProfile = MapperUtils.mapUserToUserFullProfileInfo(user);
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
     }
 
     @GetMapping("/edit")
-    public ResponseEntity<UserProfileEditInfoDTO> getUserProfileEditInfo(@AuthenticationPrincipal User user) {
-        UserProfileEditInfoDTO profileToEdit = MapperUtils.mapUserToUserEditProfileInfo(user);
+    public ResponseEntity<UserProfileEditDTO> getUserProfileEditInfo(@AuthenticationPrincipal User user) {
+        UserProfileEditDTO profileToEdit = MapperUtils.mapUserToUserEditProfileInfo(user);
         return new ResponseEntity<>(profileToEdit, HttpStatus.OK);
     }
 
     @PostMapping("/edit")
     public ResponseEntity<?> editUserProfileInfo(@AuthenticationPrincipal User user,
-                                                 @RequestBody UserProfileEditInfoDTO editedProfile) {
+                                                 @RequestBody UserProfileEditDTO editedProfile) {
         try {
-            UserProfileEditInfoDTO changedProfile = MapperUtils.mapUserToUserEditProfileInfo(
+            UserProfileEditDTO changedProfile = MapperUtils.mapUserToUserEditProfileInfo(
                     userProfileService.changeUserProfileInfo(user, editedProfile)
             );
             return new ResponseEntity<>(changedProfile, HttpStatus.OK);
@@ -61,7 +61,7 @@ public class UserProfileController {
 
     @PostMapping("/edit/email")
     public ResponseEntity<String> requestEditEmail(@AuthenticationPrincipal User user,
-                                              @RequestBody UserProfileEmailInfoDTO emailInfoDTO) {
+                                              @RequestBody UserProfileEmailDTO emailInfoDTO) {
         try {
             String msg = userProfileService.requestChangeUserEmail(user, emailInfoDTO.getEmail());
             return new ResponseEntity<>(msg, HttpStatus.OK);
@@ -71,8 +71,8 @@ public class UserProfileController {
     }
 
     @GetMapping("/edit/email")
-    public ResponseEntity<UserProfileEmailInfoDTO> requestEditEmail(@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(new UserProfileEmailInfoDTO(user.getEmail()), HttpStatus.OK);
+    public ResponseEntity<UserProfileEmailDTO> requestEditEmail(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(new UserProfileEmailDTO(user.getEmail()), HttpStatus.OK);
     }
 
     @GetMapping("/edit/email/confirm/{token}")
@@ -102,4 +102,29 @@ public class UserProfileController {
 
         return new ResponseEntity<>(inputStream, headers, HttpStatus.OK);
     }
+
+    @PostMapping("/edit/password")
+    public ResponseEntity<?> editUserPassword(@AuthenticationPrincipal User user,
+                                              @RequestBody UserProfilePasswordDTO userProfilePassword) {
+        try {
+            String msg = userProfileService.changeUserPassword(user, userProfilePassword);
+            return new ResponseEntity<>(msg, HttpStatus.OK);
+        } catch (UserProfileEditException profileEditException) {
+            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteUser(@AuthenticationPrincipal User user, HttpServletRequest request) {
+        try {
+            String msg = userProfileService.prepareUserForDelete(user, request);
+            return new ResponseEntity<>(msg, HttpStatus.OK);
+        } catch (UserProfileEditException profileEditException) {
+            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.OK);
+        }
+
+    }
+
+
+
 }

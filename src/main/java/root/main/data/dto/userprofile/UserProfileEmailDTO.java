@@ -5,11 +5,11 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor
-public class UserProfileEmailInfoDTO {
+public class UserProfileEmailDTO {
 
     String email;
 
-    public UserProfileEmailInfoDTO() {
+    public UserProfileEmailDTO() {
         this.email = null;
     }
 }

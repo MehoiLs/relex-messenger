@@ -7,9 +7,10 @@ import org.springframework.stereotype.Service;
 import root.main.data.User;
 import root.main.repositories.UserRepository;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class UserService {
@@ -43,7 +44,10 @@ public class UserService {
                 .orElse(null);
     }
 
-    public Iterable<User> getAllUsers() { return userRepository.findAll(); }
+    public Set<User> getAllUsers() {
+        return StreamSupport.stream(userRepository.findAll().spliterator(), false)
+                .collect(Collectors.toSet());
+    }
 
     public Set<User> getUserFriendList(User user) {
         if (user == null) return Collections.emptySet();
@@ -56,6 +60,18 @@ public class UserService {
         save(user);
     }
 
+    public void setLastOnline(User user) {
+        user.setLastOnline(new Date());
+        save(user);
+    }
+
+    // ADDITIONAL
+    public void restoreUserAccount(@NotNull User user) {
+        user.setLocked(false);
+        user.setLastOnline(new Date());
+        save(user);
+    }
+
     // SAVE & DELETE
     public User save(@NotNull User user) {
         return userRepository.save(user);
@@ -63,6 +79,19 @@ public class UserService {
 
     public void deleteUser(@NotNull User user) {
         userRepository.delete(user);
+    }
+
+    public void deleteAllLockedUsers() {
+        Date now = new Date();
+        List<User> usersToDelete = new ArrayList<>();
+
+        getAllUsers().forEach(it -> {
+                    long msDifference = now.getTime() - it.getLastOnline().getTime();
+                    if(TimeUnit.MILLISECONDS.toDays(msDifference) >= 7)
+                        usersToDelete.add(it);
+                });
+        getAllUsers().forEach(it -> it.getFriendsList().removeAll(usersToDelete));
+        usersToDelete.forEach(this::deleteUser);
     }
 
 }

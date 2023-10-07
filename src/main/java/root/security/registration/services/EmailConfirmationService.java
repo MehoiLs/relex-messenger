@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import root.main.data.User;
-import root.main.services.email.EmailService;
+import root.main.services.EmailService;
 import root.main.utils.AppUtils;
 
 @Service

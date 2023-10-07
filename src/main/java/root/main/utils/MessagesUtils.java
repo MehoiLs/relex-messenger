@@ -10,13 +10,16 @@ public final class MessagesUtils {
             "To complete registration, you will have to activate your account via the sent link. However, " +
             "if you haven't received the letter, try sending the registration request again.";
 
-    public static final String requestConfirmationLetterAgain =
+    public static final String requestConfirmationLetterAgainMsg =
             "You have requested a confirmation letter again. Please check your inbox. " +
             "However, if you haven't received the letter again, try sending the request later.";
 
     public static final String jwtTokenAuthenticationReminderMsg =
             "Remember, the token is given once. If you lost it, you have to logout and then " +
                     "login again to receive a new one.";
+
+    public static final String userRestoredAccountMsg =
+            "[YOU HAVE RESTORED YOUR ACCOUNT]";
 
     public static final String profileEmailChangeConfirmationLetterSentMsg =
             "A confirmation letter will be sent to the email shortly. " +

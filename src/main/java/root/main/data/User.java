@@ -9,6 +9,7 @@ import root.main.data.enums.UserRoles;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -55,6 +56,9 @@ public class User {
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.DATE)
     private final LocalDate createdAt = LocalDate.now();
+    @Column(name = "last_online", nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastOnline = new Date();
     @Column(name = "role", nullable = false)
     private UserRoles role;
 

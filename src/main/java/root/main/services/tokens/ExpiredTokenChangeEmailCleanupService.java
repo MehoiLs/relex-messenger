@@ -1,10 +1,8 @@
-package root.main.services;
+package root.main.services.tokens;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import root.main.data.User;
-import root.security.registration.services.RegistrationTokenService;
 
 import java.util.Date;
 

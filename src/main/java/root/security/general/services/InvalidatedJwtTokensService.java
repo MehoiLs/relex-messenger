@@ -14,7 +14,6 @@ import root.main.services.UserService;
 import root.security.general.data.InvalidatedJwtToken;
 import root.security.general.repositories.InvalidatedJwtTokensRepository;
 
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;

@@ -1,4 +1,4 @@
-package root.main.services;
+package root.main.services.tokens;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
@@ -8,8 +8,7 @@ import org.springframework.stereotype.Service;
 import root.main.data.User;
 import root.main.data.dto.TokenChangeEmailDTO;
 import root.main.repositories.TokenChangeEmailRepository;
-import root.security.general.data.InvalidatedJwtToken;
-import root.security.registration.data.RegistrationToken;
+import root.main.services.UserService;
 
 import java.util.Date;
 import java.util.Optional;
