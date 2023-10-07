@@ -40,7 +40,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(HttpMethod.POST, "/register/**", "/login/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/register/**").permitAll()
-                        .requestMatchers("/home", "/account", "/users", "/dm").authenticated()
+                        .requestMatchers("/home", "/users", "/dm", "/profile/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .logout((logout) -> logout

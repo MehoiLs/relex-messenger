@@ -23,4 +23,12 @@ public final class MessagesUtils {
             "To complete e-mail change, you will have to set your new e-mail via the sent link. However, " +
             "if you haven't received the letter, try sending the request again.";
 
+    public static final String invalidImageFormatMsg =
+            "Invalid file type. Only JPEG and PNG images are allowed.";
+
+    public static final String fileUploadErrorMsg =
+            "Error while uploading the file.";
+
+    public static final String fileNameIsNullMsg =
+            fileUploadErrorMsg + " The file name is null.";
 }

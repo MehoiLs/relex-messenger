@@ -20,15 +20,12 @@ public class InvalidatedJwtTokenCleanupService {
         this.tokensService = tokensService;
     }
 
-    //TODO FIX
-
-    @Scheduled(cron = "0 0 0 * * ?") // every midnight
     public void cleanupExpiredTokens() {
         tokensService.getAllTokens()
                 .forEach(token -> {
                     if (tokensService.tokenIsExpired(token))
                         tokensService.deleteToken(token);
                 });
-        log.info("[CLEANER] All expired invalidated JWT tokens have been deleted from the database.");
+        log.info("[DATABASE CLEANER] All expired invalidated JWT tokens have been deleted from the database.");
     }
 }

@@ -45,6 +45,13 @@ public class User {
     @NotEmpty(message = "Last name cannot be empty.")
     private String lastName;
 
+    @Column(name = "personal_status")
+    private String personalStatus;
+    @Column(name = "description")
+    private String description;
+    @Column(name = "pfp_bytes")
+    private byte[] profilePictureBytes;
+
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.DATE)
     private final LocalDate createdAt = LocalDate.now();

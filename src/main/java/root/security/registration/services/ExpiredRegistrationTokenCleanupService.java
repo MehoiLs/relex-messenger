@@ -22,9 +22,6 @@ public class ExpiredRegistrationTokenCleanupService {
         this.userService = userService;
     }
 
-    //TODO FIX
-
-    @Scheduled(cron = "0 0 0 * * ?") // every midnight
     public void cleanupExpiredTokens() {
         Date rightNow = new Date();
         registrationTokenService.getAllTokens()
@@ -35,6 +32,6 @@ public class ExpiredRegistrationTokenCleanupService {
                         userService.deleteUser(userToDelete);
                     }
                 });
-        log.info("[CLEANER] All expired registration tokens and non-enabled users have been deleted from the database.");
+        log.info("[DATABASE CLEANER] All expired registration tokens and non-enabled users have been deleted from the database.");
     }
 }

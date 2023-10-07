@@ -1,18 +1,23 @@
 package root.main.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import root.main.data.User;
-import root.main.data.dto.UserProfileEditInfoDTO;
-import root.main.data.dto.UserProfileFullInfoDTO;
+import root.main.data.dto.userprofile.UserProfileEditInfoDTO;
+import root.main.data.dto.userprofile.UserProfileEmailInfoDTO;
+import root.main.data.dto.userprofile.UserProfileFullInfoDTO;
+import root.main.exceptions.ProfilePictureUploadException;
 import root.main.exceptions.UserProfileEditException;
 import root.main.services.TokenChangeEmailService;
 import root.main.services.UserProfileService;
 import root.main.services.UserService;
 import root.main.utils.MapperUtils;
+
+import java.io.ByteArrayInputStream;
 
 @RestController
 @RequestMapping("/profile")
@@ -45,7 +50,7 @@ public class UserProfileController {
     public ResponseEntity<?> editUserProfileInfo(@AuthenticationPrincipal User user,
                                                  @RequestBody UserProfileEditInfoDTO editedProfile) {
         try {
-            UserProfileFullInfoDTO changedProfile = MapperUtils.mapUserToUserFullProfileInfo(
+            UserProfileEditInfoDTO changedProfile = MapperUtils.mapUserToUserEditProfileInfo(
                     userProfileService.changeUserProfileInfo(user, editedProfile)
             );
             return new ResponseEntity<>(changedProfile, HttpStatus.OK);
@@ -56,13 +61,18 @@ public class UserProfileController {
 
     @PostMapping("/edit/email")
     public ResponseEntity<String> requestEditEmail(@AuthenticationPrincipal User user,
-                                              @RequestBody UserProfileEditInfoDTO editedProfile) {
+                                              @RequestBody UserProfileEmailInfoDTO emailInfoDTO) {
         try {
-            String msg = userProfileService.requestChangeUserEmail(user, editedProfile.getEmail());
+            String msg = userProfileService.requestChangeUserEmail(user, emailInfoDTO.getEmail());
             return new ResponseEntity<>(msg, HttpStatus.OK);
         } catch (UserProfileEditException profileEditException) {
             return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/edit/email")
+    public ResponseEntity<UserProfileEmailInfoDTO> requestEditEmail(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(new UserProfileEmailInfoDTO(user.getEmail()), HttpStatus.OK);
     }
 
     @GetMapping("/edit/email/confirm/{token}")
@@ -73,4 +83,23 @@ public class UserProfileController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @PostMapping("/edit/pfp")
+    public ResponseEntity<String> uploadProfilePicture(@AuthenticationPrincipal User user,
+                                                   @RequestParam("image") MultipartFile pfp) {
+        try {
+            String msg = userProfileService.uploadUserProfilePicture(user, pfp);
+            return new ResponseEntity<>(msg, HttpStatus.OK);
+        } catch (ProfilePictureUploadException pictureUploadException) {
+            return new ResponseEntity<>(pictureUploadException.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping({"/pfp", "/edit/pfp"})
+    public ResponseEntity<?> getProfilePicture(@AuthenticationPrincipal User user) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        InputStreamResource inputStream = userProfileService.getUserProfilePictureAsInputStreamResource(user);
+
+        return new ResponseEntity<>(inputStream, headers, HttpStatus.OK);
+    }
 }

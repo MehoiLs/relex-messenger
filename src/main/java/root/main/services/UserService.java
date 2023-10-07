@@ -5,12 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import root.main.data.User;
-import root.main.data.dto.UserProfileEditInfoDTO;
-import root.main.exceptions.UserProfileEditException;
 import root.main.repositories.UserRepository;
-import root.main.services.email.EmailTokenChangeService;
-import root.main.utils.MapperUtils;
-import root.main.utils.ValidationUtils;
 
 import java.util.Collections;
 import java.util.HashSet;

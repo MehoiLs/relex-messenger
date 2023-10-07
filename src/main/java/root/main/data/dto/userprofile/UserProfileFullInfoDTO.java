@@ -1,4 +1,4 @@
-package root.main.data.dto;
+package root.main.data.dto.userprofile;
 
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -11,6 +11,8 @@ public class UserProfileFullInfoDTO {
 
     Long id;
     String username;
+    String personalStatus;
+    String description;
     String firstName;
     String lastName;
     String email;
@@ -21,6 +23,8 @@ public class UserProfileFullInfoDTO {
     public UserProfileFullInfoDTO() {
         this.id = null;
         this.username = null;
+        this.personalStatus = null;
+        this.description = null;
         this.firstName = null;
         this.lastName = null;
         this.email = null;
