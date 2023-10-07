@@ -59,4 +59,5 @@ public class TokenChangeEmailService {
         Optional<TokenChangeEmailDTO> tokenChangeEmail = tokenChangeEmailRepository.findByUser(user);
         return tokenChangeEmail.isPresent();
     }
+
 }
