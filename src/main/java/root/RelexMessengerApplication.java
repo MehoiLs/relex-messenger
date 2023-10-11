@@ -9,5 +9,5 @@ public class RelexMessengerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RelexMessengerApplication.class, args);
 	}
-
+	//TODO REFACTOR "DATE" -> "LOCALDATETIME" IN ENTITIES
 }

@@ -1,16 +1,17 @@
-package root.main.services;
+package root.database.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import root.database.DatabaseManager;
+import root.main.services.UserService;
 import root.main.services.tokens.ExpiredTokenChangeEmailCleanupService;
 import root.security.general.services.InvalidatedJwtTokenCleanupService;
 import root.security.registration.services.ExpiredRegistrationTokenCleanupService;
 
-@Slf4j
+
 @Service
-public class DatabaseCleanupService {
+public class DatabaseCleanerService {
 
     private final ExpiredRegistrationTokenCleanupService expiredRegistrationTokenCleanupService;
     private final InvalidatedJwtTokenCleanupService invalidatedJwtTokenCleanupService;
@@ -18,7 +19,7 @@ public class DatabaseCleanupService {
     private final UserService userService;
 
     @Autowired
-    public DatabaseCleanupService(ExpiredRegistrationTokenCleanupService expiredRegistrationTokenCleanupService,
+    public DatabaseCleanerService(ExpiredRegistrationTokenCleanupService expiredRegistrationTokenCleanupService,
                                   InvalidatedJwtTokenCleanupService invalidatedJwtTokenCleanupService,
                                   ExpiredTokenChangeEmailCleanupService expiredTokenChangeEmailCleanupService,
                                   UserService userService) {
@@ -28,23 +29,25 @@ public class DatabaseCleanupService {
         this.userService = userService;
     }
 
-    @Scheduled(cron = "0 0 0 * * ?")
     public void cleanUpDatabase() {
         cleanUpDatabaseFromTokens();
         cleanUpDatabaseFromDeletedUsers();
     }
 
     private void cleanUpDatabaseFromTokens() {
-        log.info("[DATABASE CLEANER] ...Starting cleaning up the database from tokens... ");
+        DatabaseManager.log("...Starting cleaning up the database from tokens...");
         expiredRegistrationTokenCleanupService.cleanupExpiredTokens();
+        DatabaseManager.log(" Cleaned up all expired registration tokens.");
         invalidatedJwtTokenCleanupService.cleanupExpiredTokens();
+        DatabaseManager.log(" Cleaned up all invalidated tokens that have expired.");
         expiredTokenChangeEmailCleanupService.cleanupExpiredTokens();
-        log.info("[DATABASE CLEANER] ...Finished cleaning up the database from tokens... ");
+        DatabaseManager.log(" Cleaned up all expired e-mail change tokens.");
+        DatabaseManager.log("...Finished cleaning up the database from tokens...\n");
     }
 
     private void cleanUpDatabaseFromDeletedUsers() {
-        log.info("[DATABASE CLEANER] ...Starting cleaning up the database from deleted (locked) users... ");
+        DatabaseManager.log("...Starting cleaning up the database from deleted (locked) users...\n");
         userService.deleteAllLockedUsers();
-        log.info("[DATABASE CLEANER] ...Finished cleaning up the database from deleted (locked) users... ");
+        DatabaseManager.log("...Finished cleaning up the database from deleted (locked) users...\n");
     }
 }

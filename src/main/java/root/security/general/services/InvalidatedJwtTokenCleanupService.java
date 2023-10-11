@@ -21,6 +21,5 @@ public class InvalidatedJwtTokenCleanupService {
                     if (tokensService.tokenIsExpired(token))
                         tokensService.deleteToken(token);
                 });
-        log.info("[DATABASE CLEANER] All expired invalidated JWT tokens have been deleted from the database.");
     }
 }

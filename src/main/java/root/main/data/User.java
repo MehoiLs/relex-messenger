@@ -8,6 +8,7 @@ import lombok.*;
 import root.main.data.enums.UserRoles;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -58,7 +59,7 @@ public class User {
     private final LocalDate createdAt = LocalDate.now();
     @Column(name = "last_online", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date lastOnline = new Date();
+    private LocalDateTime lastOnline = LocalDateTime.now();
     @Column(name = "role", nullable = false)
     private UserRoles role;
 

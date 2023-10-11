@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import root.main.data.User;
 import root.main.repositories.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -39,8 +40,9 @@ public class UserService {
     }
 
     public User getUserByAuth(Authentication auth) {
-        if (!auth.isAuthenticated()) return null;
-        return userRepository.findByUsername(auth.getName())
+        if (auth == null) return null;
+        User authUser = (User) auth.getPrincipal();
+        return userRepository.findByUsername(authUser.getUsername())
                 .orElse(null);
     }
 
@@ -54,6 +56,10 @@ public class UserService {
         return new HashSet<>(user.getFriendsList());
     }
 
+    public boolean userExistsById(Long id) {
+        return userRepository.existsById(id);
+    }
+
     // SETTERS
     public void setActiveSession(User user, boolean isActive) {
         user.setHasActiveSession(isActive);
@@ -61,14 +67,14 @@ public class UserService {
     }
 
     public void setLastOnline(User user) {
-        user.setLastOnline(new Date());
+        user.setLastOnline(LocalDateTime.now());
         save(user);
     }
 
     // ADDITIONAL
     public void restoreUserAccount(@NotNull User user) {
         user.setLocked(false);
-        user.setLastOnline(new Date());
+        user.setLastOnline(LocalDateTime.now());
         save(user);
     }
 
@@ -82,13 +88,11 @@ public class UserService {
     }
 
     public void deleteAllLockedUsers() {
-        Date now = new Date();
         List<User> usersToDelete = new ArrayList<>();
 
-        getAllUsers().forEach(it -> {
-                    long msDifference = now.getTime() - it.getLastOnline().getTime();
-                    if(TimeUnit.MILLISECONDS.toDays(msDifference) >= 7)
-                        usersToDelete.add(it);
+        getAllUsers().forEach(user -> {
+                    if(user.getLastOnline().plusDays(7).isBefore(LocalDateTime.now()))
+                        usersToDelete.add(user);
                 });
         getAllUsers().forEach(it -> it.getFriendsList().removeAll(usersToDelete));
         usersToDelete.forEach(this::deleteUser);

@@ -31,6 +31,5 @@ public class ExpiredRegistrationTokenCleanupService {
                         userService.deleteUser(userToDelete);
                     }
                 });
-        log.info("[DATABASE CLEANER] All expired registration tokens and non-enabled users have been deleted from the database.");
     }
 }

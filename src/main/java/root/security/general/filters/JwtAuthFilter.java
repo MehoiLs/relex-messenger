@@ -1,5 +1,6 @@
 package root.security.general.filters;
 
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import root.main.exceptions.TokenIsInvalidatedException;
@@ -38,10 +40,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             try {
                 SecurityContextHolder.getContext().setAuthentication(
                         JWTAuthenticationProvider.validateToken(token));
-            } catch (AuthenticationServiceException | TokenNotFoundException | TokenIsInvalidatedException e) {
-                log.info(e.getMessage());
+            } catch (AuthenticationServiceException | TokenNotFoundException
+                     | TokenIsInvalidatedException | TokenExpiredException e) {
+                log.info("[JWT FILTER] Token validation failed: \"" + token + "\". " + e.getMessage());
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Auth failed:\n" + e.getMessage());
                 SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
         }
         filterChain.doFilter(request, response);

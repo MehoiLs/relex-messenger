@@ -3,6 +3,7 @@ package root.security.general.components;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -13,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import root.main.data.User;
@@ -68,16 +70,22 @@ public class JwtAuthenticationProvider {
             Long userId = Long.parseLong(decoded.getIssuer());
             User user = userService.getUserById(userId);
 
-            if (tokensService.tokenIsInvalidated(token))
-                throw new TokenIsInvalidatedException("Token " + token + " is invalidated.");
+            if (tokensService.tokenIsInvalidated(token)) {
+                deactivateUserSessionByToken(token);
+                throw new TokenIsInvalidatedException("Token is invalidated.");
+            }
+
+            //TODO HAS ACTIVE SESSION => FALSE IF INVALID
 
             userService.setLastOnline(user);
             return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
         } catch (TokenExpiredException tokenExpiredException) {
+            deactivateUserSessionByToken(token);
             throw tokenExpiredException;
         } catch (JWTVerificationException verificationException) {
+            deactivateUserSessionByToken(token);
             log.info(verificationException.getMessage());
-            throw new AuthenticationServiceException("Token validation failed: " + token);
+            throw new AuthenticationServiceException("Could not verify the provided token.");
         }
     }
 
@@ -92,9 +100,29 @@ public class JwtAuthenticationProvider {
 
         User user = userService.getUserByLogin(login);
         if (passwordEncoder.matches(password, user.getPassword())) {
-            log.info("[Authentication Provider] A username with login \"" + login + "\" has been validated.");
+            if (!user.isHasActiveSession())
+                log.info("[Authentication Provider] A username with login \"" + login + "\" has been validated.");
             return user;
         }
         else throw new BadCredentialsException("Incorrect password");
+    }
+
+    public User getUserOrNullByToken(String token) {
+        try {
+            Authentication auth = validateToken(token);
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            return userService.getUserByAuth(auth);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void deactivateUserSessionByToken(String token) {
+        try {
+            DecodedJWT decoded = JWT.decode(token);
+            User user = userService.getUserById(Long.parseLong(decoded.getIssuer()));
+            userService.setActiveSession(user, false);
+        }
+        catch (JWTDecodeException ignored) {}
     }
 }

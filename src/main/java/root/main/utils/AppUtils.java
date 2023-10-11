@@ -19,6 +19,9 @@ public final class AppUtils {
                 return authElements[1];
             }
         }
+        else {
+            return request.getParameter("token");
+        }
         return null;
     }
 

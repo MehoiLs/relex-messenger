@@ -25,6 +25,5 @@ public class ExpiredTokenChangeEmailCleanupService {
                         tokenChangeEmailService.deleteToken(token);
                     }
                 });
-        log.info("[DATABASE CLEANER] All expired e-mail change tokens have been deleted from the database.");
     }
 }

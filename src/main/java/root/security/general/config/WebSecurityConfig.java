@@ -39,8 +39,10 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(HttpMethod.POST, "/register/**", "/login/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/register/**").permitAll()
-                        .requestMatchers("/home", "/users", "/dm", "/profile/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/register/**", "/login/chat").permitAll()
+                        .requestMatchers( "/css/**", "/fonts/**", "/images/**", "/ws/**").permitAll()
+                        .requestMatchers("/pub").permitAll()
+                        .requestMatchers("/home", "/users", "/profile/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .logout((logout) -> logout
@@ -53,6 +55,11 @@ public class WebSecurityConfig {
                 )
                 .addFilterAfter(new UsernamePasswordAuthFilter(jwtAuthenticationProvider), BasicAuthenticationFilter.class)
                 .addFilterBefore(new JwtAuthFilter(jwtAuthenticationProvider), UsernamePasswordAuthFilter.class);
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .authorizeHttpRequests((requests) -> requests
+//                        .requestMatchers( "/css/**", "/fonts/**", "/images/**").permitAll()
+//                        .anyRequest().permitAll()
+//                );
 
         return http.build();
     }
