@@ -1,13 +1,11 @@
 package root.database.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.database.DatabaseManager;
-import root.main.services.UserService;
-import root.main.services.tokens.ExpiredTokenChangeEmailCleanupService;
-import root.security.general.services.InvalidatedJwtTokenCleanupService;
-import root.security.registration.services.ExpiredRegistrationTokenCleanupService;
+import root.general.main.services.user.UserService;
+import root.general.security.general.services.InvalidatedJwtTokenCleanupService;
+import root.general.security.registration.services.ExpiredRegistrationTokenCleanupService;
 
 
 @Service

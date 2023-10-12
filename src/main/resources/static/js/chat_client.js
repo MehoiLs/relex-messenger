@@ -1,13 +1,20 @@
 const userId = document.getElementById('chat').getAttribute('data-user-id');
-let stompClient = null;
 const messageForm = document.querySelector('#messageForm');
 const chatPage = document.querySelector('#chat-page');
 const connectForm = document.querySelector('#connectForm');
-const USER_EXISTENCE_ENDPOINT = '/api/users/accessible/';
+const USER_EXISTENCE_ENDPOINT = "/public/validation/users/";
+let recipientId = null;
+let stompClient = null;
 
 function connect() {
   const socket = new SockJS("http://localhost:8080/ws");
   stompClient = Stomp.over(socket);
+
+  if (recipientId === null || recipientId === undefined) {
+      onError("Cannot proceed connecting since the recipient id is null.");
+      return;
+  }
+
   stompClient.connect({}, onConnected, onError);
 }
 
@@ -15,7 +22,11 @@ function onConnected() {
   console.log("Connected");
   chatPage.classList.remove('hidden');
   connectForm.classList.add('hidden');
-  const recipientId = document.getElementById("recipient").value;
+
+  if (recipientId === null || recipientId === undefined) {
+        onError("Cannot proceed connecting since the recipient id is null.");
+        return;
+  }
 
   const sortedIds = [userId, recipientId].sort();
   const chatId = sortedIds.join('_');
@@ -29,7 +40,7 @@ function onError(err) {
 
 function onMessageReceived(msg) {
   const notification = JSON.parse(msg.body);
-  const recipientId = document.getElementById("recipient").value;
+
   const sortedIds = [userId, recipientId].sort();
   const currentChatId = sortedIds.join('_');
 
@@ -43,30 +54,55 @@ function onMessageReceived(msg) {
   }
 }
 
-function checkUserIsAccessible(userIdToCheck) {
-     return fetch(`${USER_EXISTENCE_ENDPOINT}${userIdToCheck}/to/${userId}`)
-        .then(response => response.json())
-        .then(data => data.accessible)
-        .catch(error => {
-            console.error('Error while checking the user:', error);
-            return false;
-        });
+async function checkUserIsAccessible(userIdToCheck) {
+  try {
+    const response = await fetch(`${USER_EXISTENCE_ENDPOINT}accessible/${userIdToCheck}/to/${userId}`);
+    const data = await response.json();
+    return data.accessible || false;
+  } catch (error) {
+    console.error('Error while checking the user:', error);
+    return false;
+  }
 }
 
-function startChat() {
-  const recipientId = document.getElementById("recipient").value;
+async function fetchRecipientId(username) {
+  try {
+    const response = await fetch(`${USER_EXISTENCE_ENDPOINT}${username}`);
+    const data = await response.json();
 
-  if (userId === recipientId) {
+    if (data !== null) {
+      recipientId = data;
+      return recipientId;
+    } else {
+      console.error(`User with username ${username} not found`);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error while fetching recipientId:', error);
+    return null;
+  }
+}
+
+async function startChat() {
+  const recipient = document.getElementById("recipient").value;
+  recipientId = await fetchRecipientId(recipient);
+
+  if (recipientId === null) {
+      alert(`Cannot find user: ${recipient}`);
+      return;
+    }
+
+  if (userId == recipientId) {
     alert("You cannot start a chat with yourself!");
     return;
   }
 
-  checkUserIsAccessible(recipientId).then(userAccessible => {
-    if (!userAccessible) {
-        alert("Cannot start chatting with that user.");
-        return;
-    }
-  });
+  const userAccessible = await checkUserIsAccessible(recipientId);
+
+  if (!userAccessible) {
+    alert("Cannot start chatting with that user (friends only).");
+    return;
+  }
 
   const sortedIds = [userId, recipientId].sort();
   const chatId = sortedIds.join('_');
@@ -78,8 +114,6 @@ function sendMessage() {
   const input = document.querySelector('#message');
   const message = input.value.trim();
   if (message !== "") {
-    const recipientId = document.getElementById("recipient").value;
-
     const messagesContainer = document.getElementById("messageArea");
     const newMessage = document.createElement("li");
     newMessage.textContent = "YOU: " + message;
@@ -92,7 +126,7 @@ function sendMessage() {
       senderId: userId,
       recipientId: recipientId,
       content: message,
-      chatId: chatId, // Добавлено поле chatId в объект сообщения
+      chatId: chatId,
     };
     stompClient.send("/app/chat", {}, JSON.stringify(messageObj));
     input.value = "";

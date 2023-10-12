@@ -1,10 +1,9 @@
 package root.database.services;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.database.DatabaseManager;
-import root.main.services.UserService;
+import root.general.main.services.user.UserService;
 
 import java.time.LocalDateTime;
 

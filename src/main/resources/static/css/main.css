@@ -331,7 +331,7 @@ button.accent {
     border-bottom: 1px solid #ececec;
 }
 
-error {
+#error {
     background-color: #fff;
     box-shadow: 0 1px 11px rgba(0, 0, 0, 0.27);
 
@@ -343,11 +343,11 @@ error {
     max-width: 400px;
 }
 
-error h1, h2, h3, h4, h5, h6, p {
+#error h1, h2, h3, h4, h5, h6, p. span {
   margin-top: 20px;
   margin-bottom: 20px;
 }
 
-error h1 {
+#error h1 {
   font-size: 1.7em;
 }
