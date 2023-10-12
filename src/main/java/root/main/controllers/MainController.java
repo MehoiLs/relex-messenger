@@ -23,4 +23,6 @@ public class MainController {
         return new ResponseEntity<>("It is a public page!", HttpStatus.OK);
     }
 
+
+
 }

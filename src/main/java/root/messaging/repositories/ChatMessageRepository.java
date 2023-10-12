@@ -7,12 +7,10 @@ import root.messaging.data.enums.MessageStatus;
 import java.util.List;
 import java.util.Optional;
 
-public interface ChatMessageRepository extends CrudRepository<ChatMessage, String> {
-    long countBySenderIdAndRecipientIdAndStatus(
-            Long senderId, Long recipientId, MessageStatus status);
-
+public interface ChatMessageRepository extends CrudRepository<ChatMessage, Long> {
+    long countBySenderIdAndRecipientIdAndStatus(Long senderId, Long recipientId, MessageStatus status);
     List<ChatMessage> findBySenderIdAndRecipientId(Long senderId, Long recipientId);
-
+    List<ChatMessage> findBySenderIdAndRecipientIdAndStatus(Long senderId, Long recipientId, MessageStatus status);
     List<ChatMessage> findByChatId(String chatId);
 
 }

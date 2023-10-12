@@ -108,6 +108,7 @@ public class JwtAuthenticationProvider {
     }
 
     public User getUserOrNullByToken(String token) {
+        if(token == null) return null;
         try {
             Authentication auth = validateToken(token);
             SecurityContextHolder.getContext().setAuthentication(auth);

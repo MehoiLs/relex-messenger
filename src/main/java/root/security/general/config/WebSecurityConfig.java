@@ -8,9 +8,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import root.security.general.components.CustomLogoutHandler;
+import root.security.general.filters.CookieTokenAuthenticationFilter;
 import root.security.general.filters.JwtAuthFilter;
 import root.security.general.filters.UsernamePasswordAuthFilter;
 import root.security.general.components.JwtAuthenticationProvider;
@@ -40,7 +42,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(HttpMethod.POST, "/register/**", "/login/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/register/**", "/login/chat").permitAll()
-                        .requestMatchers( "/css/**", "/fonts/**", "/images/**", "/ws/**").permitAll()
+                        .requestMatchers( "/css/**", "/js/**", "/fonts/**", "/images/**", "/ws/**").permitAll()
                         .requestMatchers("/pub").permitAll()
                         .requestMatchers("/home", "/users", "/profile/**").authenticated()
                         .anyRequest().authenticated()
@@ -54,12 +56,8 @@ public class WebSecurityConfig {
                         }))
                 )
                 .addFilterAfter(new UsernamePasswordAuthFilter(jwtAuthenticationProvider), BasicAuthenticationFilter.class)
-                .addFilterBefore(new JwtAuthFilter(jwtAuthenticationProvider), UsernamePasswordAuthFilter.class);
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests((requests) -> requests
-//                        .requestMatchers( "/css/**", "/fonts/**", "/images/**").permitAll()
-//                        .anyRequest().permitAll()
-//                );
+                .addFilterAfter(new JwtAuthFilter(jwtAuthenticationProvider), UsernamePasswordAuthFilter.class)
+                .addFilterAfter(new CookieTokenAuthenticationFilter(jwtAuthenticationProvider), JwtAuthFilter.class);
 
         return http.build();
     }

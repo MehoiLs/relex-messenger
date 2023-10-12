@@ -1,18 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+    <title>[RM] Login Page</title>
+    <link rel="stylesheet" href="/css/main.css" />
 </head>
 <body>
-<h2>Login Page</h2>
-<form action="/login/chat" method="post">
-    <label for="token">JWT Token:</label>
-    <input type="text" id="token" name="token" required>
-    <br>
-    <button type="submit">Login</button>
-</form>
+
+<div id="tokenForm">
+
+    <form action="/login/chat" method="post">
+        <h2>[RM] Chat</h2>
+        <input type="text" id="token" name="token"
+               placeholder="Your JWT token" autocomplete="off" required />
+        <button type="submit">Login</button>
+    </form>
+
+</div>
+
 </body>
 </html>
+

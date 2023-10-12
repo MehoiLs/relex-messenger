@@ -2,69 +2,79 @@ package root.messaging.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import root.main.utils.AppUtils;
+import root.main.utils.CryptoUtils;
 import root.messaging.data.ChatMessage;
+import root.messaging.data.ChatNotification;
 import root.messaging.data.enums.MessageStatus;
-import root.messaging.exceptions.ResourceNotFoundException;
+import root.messaging.exceptions.ChatServiceException;
 import root.messaging.repositories.ChatMessageRepository;
 
-import javax.management.Query;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatMessageService {
 
-    private final ChatMessageRepository repository;
+    private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomService chatRoomService;
 
     @Autowired
-    public ChatMessageService(ChatMessageRepository repository, ChatRoomService chatRoomService) {
-        this.repository = repository;
+    public ChatMessageService(ChatMessageRepository chatMessageRepository, ChatRoomService chatRoomService) {
+        this.chatMessageRepository = chatMessageRepository;
         this.chatRoomService = chatRoomService;
     }
 
+    public ChatMessage get(Long id) {
+        return chatMessageRepository.findById(id)
+                .orElse(null);
+    }
+
     public ChatMessage save(ChatMessage chatMessage) {
+        return chatMessageRepository.save(chatMessage);
+    }
+
+    public String getDecryptedContent(ChatMessage chatMessage) {
+        return CryptoUtils.decryptPlainText(chatMessage.getContent());
+    }
+
+    public ChatMessage saveSentMessage(ChatMessage chatMessage) {
         chatMessage.setTimestamp(LocalDateTime.now());
-        chatMessage.setStatus(MessageStatus.RECEIVED);
-        repository.save(chatMessage);
+        chatMessage.setStatus(MessageStatus.DELIVERED);
+        chatMessage.setContent(
+                CryptoUtils.encryptPlainText(chatMessage.getContent())
+        );
+        chatMessageRepository.save(chatMessage);
         return chatMessage;
     }
 
     public long countNewMessages(Long senderId, Long recipientId) {
-        return repository.countBySenderIdAndRecipientIdAndStatus(
-                senderId, recipientId, MessageStatus.RECEIVED);
+        return chatMessageRepository.countBySenderIdAndRecipientIdAndStatus(
+                senderId, recipientId, MessageStatus.DELIVERED);
     }
 
-    public List<ChatMessage> findChatMessages(Long senderId, Long recipientId) {
-        var chatId = chatRoomService.getChatId(senderId, recipientId, false);
-
-        var messages =
-                chatId.map(repository::findByChatId)
-                        .orElse(new ArrayList<>());
-
-        if (messages.size() > 0)
-            updateStatuses(senderId, recipientId, MessageStatus.DELIVERED);
-
-        return messages;
+    public String getAllNewMessagesAsString(Long senderId, Long recipientId) {
+        List<ChatMessage> chatMessages = chatMessageRepository.findBySenderIdAndRecipientIdAndStatus(
+                senderId, recipientId, MessageStatus.DELIVERED);
+        return AppUtils.buildStringFromMessagesList(chatMessages);
     }
 
-    public ChatMessage findById(String id) {
-        return repository
-                .findById(id)
-                .map(chatMessage -> {
-                    chatMessage.setStatus(MessageStatus.DELIVERED);
-                    return repository.save(chatMessage);
-                })
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("can't find message (" + id + ")"));
+    public String getChatMessagesHistoryAsString(Long senderId, Long recipientId) throws ChatServiceException {
+        Optional<String> chatId = chatRoomService.getChatId(senderId, recipientId, false);
+        List<ChatMessage> messages;
+        if(chatId.isPresent()) {
+            messages = chatMessageRepository.findByChatId(chatId.get());
+            return AppUtils.buildStringFromMessagesList(messages);
+        }
+        else throw new ChatServiceException("Cannot find any chat messages history with ID: " + recipientId + ".");
     }
 
-    public void updateStatuses(Long senderId, Long recipientId, MessageStatus status) {
-        List<ChatMessage> messages = repository.findBySenderIdAndRecipientId(senderId, recipientId);
-        for (ChatMessage message : messages) {
-            message.setStatus(status);
-            repository.save(message);
+    public void updateMessageStatusByNotification(ChatNotification notification) {
+        ChatMessage msg = get(notification.getId());
+        if(msg != null) {
+            msg.setStatus(MessageStatus.READ);
+            save(msg);
         }
     }
 

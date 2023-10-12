@@ -3,6 +3,7 @@ package root.security.general.filters;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +19,12 @@ import root.security.general.components.JwtAuthenticationProvider;
 import java.io.IOException;
 
 @Slf4j
-public class JwtAuthFilter extends OncePerRequestFilter {
+public class CookieTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtAuthenticationProvider authenticationProvider;
 
     @Autowired
-    public JwtAuthFilter(JwtAuthenticationProvider authenticationProvider) {
+    public CookieTokenAuthenticationFilter(JwtAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
     }
 
@@ -31,15 +32,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-
-        String token = AppUtils.extractTokenFromRequest(request);
-        if (token != null) {
+        String token = AppUtils.extractTokenFromCookie(request);
+        if(token != null) {
             try {
                 SecurityContextHolder.getContext().setAuthentication(
                         authenticationProvider.validateToken(token));
             } catch (AuthenticationServiceException | TokenNotFoundException
                      | TokenIsInvalidatedException | TokenExpiredException e) {
-                log.info("[JWT FILTER] Token validation failed: \"" + token + "\". " + e.getMessage());
+                log.info("[COOKIE-JWT FILTER] Token validation failed: \"" + token + "\". " + e.getMessage());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Auth failed:\n" + e.getMessage());
                 SecurityContextHolder.clearContext();
                 return;
@@ -47,4 +47,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
 }

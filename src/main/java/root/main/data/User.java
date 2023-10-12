@@ -78,6 +78,8 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "friend_id")
     )
     private List<User> friendsList = new ArrayList<>();
+    @Column(name = "accessibility_is_friends_only", nullable = false)
+    private boolean accessibilityIsFriendsOnly = false;
 
     public User(String email, String login, String password, String username, String firstName, String lastName) {
         this.email = email;

@@ -1,7 +1,10 @@
 package root.messaging.controllers;
 
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -19,10 +22,13 @@ import root.main.services.UserService;
 import root.main.utils.AppUtils;
 import root.messaging.data.ChatMessage;
 import root.messaging.data.ChatNotification;
+import root.messaging.exceptions.ChatServiceException;
 import root.messaging.services.ChatMessageService;
 import root.messaging.services.ChatRoomService;
 import root.security.general.components.JwtAuthenticationProvider;
-import root.security.general.services.AuthenticationService;
+
+import java.util.Collections;
+import java.util.Map;
 
 @Controller
 public class ChatController {
@@ -49,43 +55,50 @@ public class ChatController {
 
     @GetMapping("/chat")
     public String getChatPage(HttpServletRequest request, Model model) {
-        User user = authenticationProvider.getUserOrNullByToken(AppUtils.extractTokenFromRequest(request));
+        String token = AppUtils.extractTokenFromCookie(request);
+        User user = authenticationProvider.getUserOrNullByToken(token);
         if (user != null) {
             model.addAttribute("user", user);
             return "chat";
+        } else {
+            model.addAttribute("error", "Could not authorize.");
+            return "error";
         }
-        return "error";
     }
 
     @PostMapping("/login/chat")
-    public String doLoginChat(@RequestParam String token, Model model) {
+    public String doLoginChat(@RequestParam String token, HttpServletResponse response, Model model) {
         try {
             Authentication auth = authenticationProvider.validateToken(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
             User user = userService.getUserByAuth(auth);
             model.addAttribute("user", user);
-            return "redirect:/chat?token=" + token; //TODO fix auth
+
+            Cookie cookie = new Cookie("accessToken", token);
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+
+            response.addCookie(cookie);
+
+            return "redirect:/chat";
         } catch (TokenNotFoundException | TokenIsInvalidatedException e) {
+            model.addAttribute("error", e.getMessage());
             return "error";
         }
     }
 
 
-    /****************************************************************/
+    /****************************** MESSAGE MAPPINGS ******************************/
 
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessage chatMessage) {
         //TODO CANT SEND TO YOURSELF
-//        var chatId = chatRoomService
-//                .getChatId(chatMessage.getSenderId(), chatMessage.getRecipientId(), true);
-//        chatMessage.setChatId(chatId.get());
-        //TODO TRY-CATCH
         chatMessage.setSenderName(userService.getUserById(
                 chatMessage.getSenderId()).getUsername());
         chatMessage.setRecipientName(userService.getUserById(
                 chatMessage.getRecipientId()).getUsername());
 
-        ChatMessage saved = chatMessageService.save(chatMessage);
+        ChatMessage saved = chatMessageService.saveSentMessage(chatMessage);
 
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipientId().toString(),"/queue/messages/" + chatMessage.getChatId(),
@@ -94,29 +107,38 @@ public class ChatController {
                         saved.getChatId(),
                         saved.getSenderId(),
                         saved.getSenderName(),
-                        saved.getContent()));
+                        chatMessageService.getDecryptedContent(saved)));
     }
 
-    @GetMapping("/messages/{senderId}/{recipientId}/count")
-    public ResponseEntity<Long> countNewMessages(
-            @PathVariable Long senderId,
-            @PathVariable Long recipientId) {
-
-        return ResponseEntity
-                .ok(chatMessageService.countNewMessages(senderId, recipientId));
+    @MessageMapping("/chat/read")
+    public void processReadNotification(@Payload ChatNotification chatNotification) {
+        chatMessageService.updateMessageStatusByNotification(chatNotification);
     }
 
-    @GetMapping("/messages/{senderId}/{recipientId}")
-    public ResponseEntity<?> findChatMessages ( @PathVariable Long senderId,
-                                                @PathVariable Long recipientId) {
-        return ResponseEntity
-                .ok(chatMessageService.findChatMessages(senderId, recipientId));
+    /****************************** MESSAGE MAPPINGS ******************************/
+
+    @GetMapping("/messages/{recipientId}/count")
+    public ResponseEntity<Long> countNewMessages(@PathVariable Long recipientId,
+                                                 @AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(chatMessageService.countNewMessages(user.getId(), recipientId), HttpStatus.OK);
     }
 
-    @GetMapping("/messages/{id}")
-    public ResponseEntity<?> findMessage ( @PathVariable String id) {
-        return ResponseEntity
-                .ok(chatMessageService.findById(id));
+    @GetMapping("/messages/{recipientId}")
+    public ResponseEntity<String> getAllNewMessages (@PathVariable Long recipientId,
+                                                 @AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(chatMessageService.getAllNewMessagesAsString(user.getId(), recipientId), HttpStatus.OK);
     }
+
+    @GetMapping("/messages/{recipientId}/all")
+    public ResponseEntity<?> getChatMessageHistory (@PathVariable Long recipientId,
+                                                    @AuthenticationPrincipal User user) {
+        try {
+            String messages = chatMessageService.getChatMessagesHistoryAsString(user.getId(), recipientId);
+            return new ResponseEntity<>(messages, HttpStatus.OK);
+        } catch (ChatServiceException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
 }
 

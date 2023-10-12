@@ -78,6 +78,20 @@ public class UserService {
         save(user);
     }
 
+    public boolean userAccessibilityIsFriendsOnly(@NotNull Long userId) {
+        User user = getUserById(userId);
+        if (user == null) return false;
+        return user.isAccessibilityIsFriendsOnly();
+    }
+
+    public boolean userIsFriendsWith(@NotNull Long userToCheckId, @NotNull Long userId) {
+        User userToCheck = getUserById(userToCheckId);
+        User userChecking = getUserById(userId);
+        if (userToCheck == null || userChecking == null) return false;
+
+        return userToCheck.getFriendsList().contains(userChecking);
+    }
+
     // SAVE & DELETE
     public User save(@NotNull User user) {
         return userRepository.save(user);
