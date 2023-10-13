@@ -40,12 +40,12 @@ public class DatabaseCleanerService {
         DatabaseManager.log(" Cleaned up all invalidated tokens that have expired.");
         expiredTokenChangeEmailCleanupService.cleanupExpiredTokens();
         DatabaseManager.log(" Cleaned up all expired e-mail change tokens.");
-        DatabaseManager.log("...Finished cleaning up the database from tokens...\n");
+        DatabaseManager.log("...Finished cleaning up the database from tokens...");
     }
 
     private void cleanUpDatabaseFromDeletedUsers() {
-        DatabaseManager.log("...Starting cleaning up the database from deleted (locked) users...\n");
+        DatabaseManager.log("...Starting cleaning up the database from deleted (locked) users...");
         userService.deleteAllLockedUsers();
-        DatabaseManager.log("...Finished cleaning up the database from deleted (locked) users...\n");
+        DatabaseManager.log("...Finished cleaning up the database from deleted (locked) users...");
     }
 }

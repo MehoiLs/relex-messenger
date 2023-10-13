@@ -58,6 +58,7 @@ public class User {
     @Column(name = "created_at", nullable = false)
     @Temporal(TemporalType.DATE)
     private final LocalDate createdAt = LocalDate.now();
+    @EqualsAndHashCode.Exclude
     @Column(name = "last_online", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastOnline = LocalDateTime.now();

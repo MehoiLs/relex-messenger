@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.exceptions.UserNotFoundException;
 import root.general.security.general.exceptions.RegistrationException;
 import root.general.main.services.user.UserService;
 import root.general.main.utils.InfoMessagesUtils;
@@ -30,34 +31,35 @@ public class RegistrationService {
     }
 
     public String registerUser(User newUser) throws RegistrationException {
-        User possibleUser = userService.getUserByLogin(newUser.getLogin());
-        // User exists and requests a letter
-        if(possibleUser != null && !possibleUser.isEnabled()) {
-            emailConfirmationService.sendConfirmationEmail(possibleUser);
-            log.info("[REGISTRATION SERVICE] A non-enabled user requested a confirmation: " + possibleUser.getLogin());
-            return InfoMessagesUtils.requestConfirmationLetterAgainMsg;
-        }
-        else { // New user
-            if (!providedEmailIsUnique(newUser.getEmail()))
-                throw new RegistrationException("Email must be unique.");
-            if (!providedLoginIsUnique(newUser.getLogin()))
-                throw new RegistrationException("Login must be unique.");
+        try {
+            User possibleUser = userService.getUserByLogin(newUser.getLogin());
+            // User exists and requests a letter
+            if (!possibleUser.isEnabled()) {
+                emailConfirmationService.sendConfirmationEmail(possibleUser);
+                log.info("[REGISTRATION SERVICE] A non-enabled user requested a confirmation: " + possibleUser.getLogin());
+                return InfoMessagesUtils.requestConfirmationLetterAgainMsg;
+            }
+        } catch (UserNotFoundException ignored) {}
+        // New user
+        if (!providedEmailIsUnique(newUser.getEmail()))
+            throw new RegistrationException("Email must be unique.");
+        if (!providedLoginIsUnique(newUser.getLogin()))
+            throw new RegistrationException("Login must be unique.");
 
-            User user = new User(
-                    newUser.getEmail(),
-                    newUser.getLogin(),
-                    passwordEncoder.encode(newUser.getPassword()),
-                    newUser.getUsername(),
-                    newUser.getFirstName(),
-                    newUser.getLastName()
-            );
-            userService.save(user);
-            log.info("[REGISTRATION SERVICE] A new user has registered their account: " + user.getLogin() +
-                    "; awaiting confirmation.");
+        User user = new User(
+                newUser.getEmail(),
+                newUser.getLogin(),
+                passwordEncoder.encode(newUser.getPassword()),
+                newUser.getUsername(),
+                newUser.getFirstName(),
+                newUser.getLastName()
+        );
+        userService.save(user);
+        log.info("[REGISTRATION SERVICE] A new user has registered their account: \"" + user.getLogin() +
+                "\" awaiting confirmation.");
 
-            emailConfirmationService.sendConfirmationEmail(user);
-            return InfoMessagesUtils.registrationSuccessConfirmationLetterSentMsg;
-        }
+        emailConfirmationService.sendConfirmationEmail(user);
+        return InfoMessagesUtils.registrationSuccessConfirmationLetterSentMsg;
     }
 
     @Transactional

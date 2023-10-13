@@ -34,7 +34,7 @@ public class UserCommunityService {
     }
 
     @Transactional
-    public String getGeneralInfo(User user) {
+    public String getGeneralInfoAsString(User user) {
         StringBuilder output = new StringBuilder();
         output
                 .append("Currently you have...\n\t")

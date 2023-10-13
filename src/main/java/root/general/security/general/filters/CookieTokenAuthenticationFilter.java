@@ -14,6 +14,7 @@ import root.general.security.general.exceptions.TokenIsInvalidatedException;
 import root.general.security.general.exceptions.TokenNotFoundException;
 import root.general.main.utils.AppUtils;
 import root.general.security.general.components.JwtAuthenticationProvider;
+import root.general.security.utils.WebSecurityUtils;
 
 import java.io.IOException;
 
@@ -31,10 +32,10 @@ public class CookieTokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-//        if (WebSecurityUtils.isPublicRequest(request)) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
+        if (WebSecurityUtils.isIgnoreTokenRequest(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         String token = AppUtils.extractTokenFromCookie(request);
         if(token != null) {
             try {

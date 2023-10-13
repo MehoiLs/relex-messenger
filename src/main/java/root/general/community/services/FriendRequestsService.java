@@ -76,7 +76,7 @@ public class FriendRequestsService {
         Optional<FriendRequest> request = friendRequestsRepository.findBySenderAndRecipient(senderUser, acceptorUser);
         if(request.isPresent()) friendRequestsRepository.delete(request.get());
         else throw new UserNotFoundException("User: " + senderUsername + " has not sent you a friend request.");
-    } //TODO DB CLEANUP
+    }
 
     @Transactional
     public void denyAllFriendRequests(User acceptorUser) {

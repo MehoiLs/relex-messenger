@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import root.general.security.general.data.dto.CredentialsDTO;
 import root.general.security.general.components.JwtAuthenticationProvider;
+import root.general.security.utils.WebSecurityUtils;
 
 import java.io.IOException;
 
@@ -31,10 +32,11 @@ public class UsernamePasswordAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-//        if (WebSecurityUtils.isPublicRequest(request)) {
-//            filterChain.doFilter(request, response);
-//            return;
-//        }
+        if (WebSecurityUtils.isIgnoreTokenRequest(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         if ("/sign_in".equals(request.getServletPath()) && HttpMethod.POST.matches(request.getMethod())) {
             CredentialsDTO credentialsDTO = MAPPER.readValue(
                     request.getInputStream(), CredentialsDTO.class);

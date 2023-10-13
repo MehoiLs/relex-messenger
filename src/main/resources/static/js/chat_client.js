@@ -70,7 +70,7 @@ async function fetchRecipientId(username) {
     const response = await fetch(`${USER_EXISTENCE_ENDPOINT}${username}`);
     const data = await response.json();
 
-    if (data !== null) {
+    if (data !== null && response.ok) {
       recipientId = data;
       return recipientId;
     } else {

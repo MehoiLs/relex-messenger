@@ -13,7 +13,7 @@ public final class WebSecurityUtils {
     };
 
     public static final String[] publicMappingsGET = {
-            "/register/**", "/login/**", "/login/chat", "/error", "/public/validation/**",
+            "/register/**", "/login/**", "/login/chat", "/error",
             "/js/**", "/fonts/**", "/images/**", "/favicon.ico", "/css/**"
     };
 
@@ -21,9 +21,13 @@ public final class WebSecurityUtils {
             "/register/**", "/login/**", "/login/chat"
     };
 
-    public static boolean isPublicRequest(HttpServletRequest request) {
+    private static final String[] ignoreTokenRequestsList = {
+            "/register", "/login", "/css", "/favicon.ico"
+    };
+
+    public static boolean isIgnoreTokenRequest(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
-        return Arrays.stream(publicMappingsGET).sequential().anyMatch(requestURI::startsWith);
+        return Arrays.stream(ignoreTokenRequestsList).sequential().anyMatch(requestURI::startsWith);
     }
 
 }

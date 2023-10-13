@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -40,8 +41,9 @@ public class WebSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers(WebSecurityUtils.publicMappings).permitAll()
-                        .requestMatchers(WebSecurityUtils.publicMappingsGET).permitAll()
-                        .requestMatchers(WebSecurityUtils.publicMappingsPOST).permitAll()
+                        .requestMatchers(HttpMethod.GET, WebSecurityUtils.publicMappingsGET).permitAll()
+                        .requestMatchers(HttpMethod.POST, WebSecurityUtils.publicMappingsPOST).permitAll()
+                        .requestMatchers("/admin/**", "/swagger-ui/**").hasAuthority("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .logout((logout) -> logout
@@ -58,5 +60,4 @@ public class WebSecurityConfig {
 
         return http.build();
     }
-
 }

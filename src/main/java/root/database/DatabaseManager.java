@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import root.database.services.DatabaseCleanerService;
 import root.database.services.DatabaseUserSessionValidationService;
 
-//TODO Correct annotation?
 @Slf4j
 @Service
 public class DatabaseManager {

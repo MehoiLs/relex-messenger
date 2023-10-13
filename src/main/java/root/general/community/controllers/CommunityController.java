@@ -1,20 +1,24 @@
 package root.general.community.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import root.general.community.exception.FriendRequestException;
-import root.general.community.repositories.UserFriendsRepository;
 import root.general.community.services.FriendRequestsService;
 import root.general.community.services.UserCommunityService;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
-import root.general.main.services.user.UserService;
 
 @RestController
 @RequestMapping("/community")
+@Tag(name = "Операции сообщества (community)", description = "Предоставляет API для просмотра информации " +
+        "о других пользователях, а также для добавления и удаления пользователей из списка друзей ")
 public class CommunityController {
 
     private final UserCommunityService userCommunityService;
@@ -26,9 +30,15 @@ public class CommunityController {
         this.friendRequestsService = friendRequestsService;
     }
 
+    @Operation
+            (summary = "Получить основную информацию о сообществе (community)",
+                    description = "Получить информацию о текущем (аутентифицированном пользователе): новые сообщения, запросы в друзья")
+    @ApiResponse
+            (responseCode = "200", description = "Информация получена успешно.",
+            content = @Content(mediaType = "text/plain"))
     @GetMapping
-    public ResponseEntity<?> getGeneralInfo(@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(userCommunityService.getGeneralInfo(user), HttpStatus.OK);
+    public ResponseEntity<String> getGeneralInfo(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(userCommunityService.getGeneralInfoAsString(user), HttpStatus.OK);
     }
 
     @GetMapping("/users/{username}")

@@ -15,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -58,6 +60,7 @@ public class JwtAuthenticationProvider {
                 .withIssuer(userId)
                 .withIssuedAt(now)
                 .withExpiresAt(expiresAt)
+                .withClaim("role", user.getRole().name())
                 .sign(algorithm);
     }
 
@@ -77,8 +80,17 @@ public class JwtAuthenticationProvider {
                 throw new TokenIsInvalidatedException("Token is invalidated.");
             }
 
+            if (!user.isHasActiveSession()) {
+                tokensService.invalidateToken(token);
+                throw new AuthenticationServiceException("User is logged out.");
+            }
+
             userService.setLastOnline(user);
-            return new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
+
+            String role = decoded.getClaim("role").asString();
+            List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
+
+            return new UsernamePasswordAuthenticationToken(user, null, authorities);
         } catch (TokenExpiredException tokenExpiredException) {
             deactivateUserSessionByToken(token);
             throw tokenExpiredException;
