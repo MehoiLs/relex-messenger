@@ -72,9 +72,15 @@ public class User {
     @Column(name = "is_locked", nullable = false)
     private boolean isLocked = false;
 
-    @ManyToMany(fetch = FetchType.EAGER)
     @ToString.Exclude
-    private List<User> friendsList = new ArrayList<>();
+    @EqualsAndHashCode.Exclude
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "user_friends",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id")
+    )
+    private Set<User> friendsList = new HashSet<>();
     @Column(name = "friends_list_is_hidden", nullable = false)
     private boolean friendsListHidden = false;
     @Column(name = "accessibility_is_friends_only", nullable = false)

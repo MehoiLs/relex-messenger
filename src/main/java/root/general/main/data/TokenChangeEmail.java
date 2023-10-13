@@ -1,4 +1,4 @@
-package root.general.main.data.dto;
+package root.general.main.data;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -6,13 +6,12 @@ import lombok.Value;
 import root.general.main.data.User;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Value
 @AllArgsConstructor
 @Table(name = "email_change_tokens")
-public class TokenChangeEmailDTO {
+public class TokenChangeEmail {
 
     @Id
     @Column(name = "token", nullable = false, unique = true)
@@ -29,7 +28,7 @@ public class TokenChangeEmailDTO {
     @Temporal(TemporalType.TIMESTAMP)
     LocalDateTime expirationDate = LocalDateTime.now().plusWeeks(1);
 
-    public TokenChangeEmailDTO() {
+    public TokenChangeEmail() {
         this.token = null;
         this.newEmail = null;
         this.user = null;

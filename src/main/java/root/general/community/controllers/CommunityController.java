@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import root.general.community.exception.FriendRequestException;
+import root.general.community.repositories.UserFriendsRepository;
 import root.general.community.services.FriendRequestsService;
 import root.general.community.services.UserCommunityService;
 import root.general.main.data.User;
@@ -70,7 +71,7 @@ public class CommunityController {
     public ResponseEntity<?> removeUserAsFriend(@PathVariable String username,
                                                 @AuthenticationPrincipal User requesterUser) {
         try {
-            friendRequestsService.removeFriend(username, requesterUser);
+            userCommunityService.removeFriend(username, requesterUser);
             return new ResponseEntity<>("Successfully removed " + username + " from your friends list.", HttpStatus.OK);
         } catch (UserNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

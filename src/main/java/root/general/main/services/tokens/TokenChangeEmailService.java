@@ -1,7 +1,6 @@
 package root.general.main.services.tokens;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +8,9 @@ import org.springframework.stereotype.Service;
 import root.general.main.data.User;
 import root.general.main.repositories.TokenChangeEmailRepository;
 import root.general.main.services.user.UserService;
-import root.general.main.data.dto.TokenChangeEmailDTO;
+import root.general.main.data.TokenChangeEmail;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -32,23 +30,23 @@ public class TokenChangeEmailService {
         this.userService = userService;
     }
 
-    public TokenChangeEmailDTO getToken(@NonNull String token) {
+    public TokenChangeEmail getToken(@NonNull String token) {
         return tokenChangeEmailRepository.findById(token)
                 .orElse(null);
     }
 
-    public Set<TokenChangeEmailDTO> getAllTokens() {
+    public Set<TokenChangeEmail> getAllTokens() {
         return StreamSupport.stream(tokenChangeEmailRepository.findAll().spliterator(), false)
                 .collect(Collectors.toSet());
     }
 
     public String getTokenChangeEmailByUser(@NonNull User user) {
-        Optional<TokenChangeEmailDTO> tokenChangeEmail = tokenChangeEmailRepository.findByUser(user);
-        return tokenChangeEmail.map(TokenChangeEmailDTO::getToken).orElse(null);
+        Optional<TokenChangeEmail> tokenChangeEmail = tokenChangeEmailRepository.findByUser(user);
+        return tokenChangeEmail.map(TokenChangeEmail::getToken).orElse(null);
     }
 
     public String generateToken(@NonNull User user, @NonNull String newEmail) {
-        return tokenChangeEmailRepository.save(new TokenChangeEmailDTO(UUID.randomUUID().toString(), newEmail, user)).getToken();
+        return tokenChangeEmailRepository.save(new TokenChangeEmail(UUID.randomUUID().toString(), newEmail, user)).getToken();
     }
 
     public boolean userHasExistingToken(@NonNull User user) {
@@ -56,14 +54,14 @@ public class TokenChangeEmailService {
     }
 
     public boolean tokenIsExpiredByDate(@NonNull String token, @NonNull LocalDateTime date) {
-        Optional<TokenChangeEmailDTO> tokenChangeEmail = tokenChangeEmailRepository.findById(token);
+        Optional<TokenChangeEmail> tokenChangeEmail = tokenChangeEmailRepository.findById(token);
         return tokenChangeEmail.map(it -> it.getExpirationDate().isBefore(date))
                 .orElse(false);
     }
 
     @Transactional
     public boolean confirmTokenForUser(@NonNull String token, @NonNull User user) {
-        TokenChangeEmailDTO foundToken = getToken(token);
+        TokenChangeEmail foundToken = getToken(token);
         if (foundToken == null) return false;
         if (userService.getUserById(foundToken.getUser().getId()) == user) return false;
         user.setEmail(foundToken.getNewEmail());
@@ -74,11 +72,11 @@ public class TokenChangeEmailService {
     }
 
     public boolean tokenExistsForUser(@NonNull User user) {
-        Optional<TokenChangeEmailDTO> tokenChangeEmail = tokenChangeEmailRepository.findByUser(user);
+        Optional<TokenChangeEmail> tokenChangeEmail = tokenChangeEmailRepository.findByUser(user);
         return tokenChangeEmail.isPresent();
     }
 
-    public void deleteToken(TokenChangeEmailDTO token) {
+    public void deleteToken(TokenChangeEmail token) {
         tokenChangeEmailRepository.delete(token);
     }
 

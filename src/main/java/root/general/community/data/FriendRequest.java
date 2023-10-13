@@ -1,4 +1,4 @@
-package root.general.community.data.dto;
+package root.general.community.data;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "friend_requests")
-public class FriendRequestDTO {
+public class FriendRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class FriendRequestDTO {
     @Column(name = "sent_at", nullable = false)
     LocalDateTime sentAt = LocalDateTime.now();
 
-    public FriendRequestDTO() {
+    public FriendRequest() {
         this.id = null;
         this.sender = null;
         this.recipient = null;

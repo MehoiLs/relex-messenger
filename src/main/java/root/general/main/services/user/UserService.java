@@ -1,8 +1,8 @@
 package root.general.main.services.user;
 
 import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -87,13 +88,6 @@ public class UserService {
         userRepository.save(friend);
     }
 
-    @Transactional
-    public void removeFriend(@NonNull User user, @NonNull User friend) {
-        user.getFriendsList().remove(friend);
-        friend.getFriendsList().remove(user);
-        userRepository.save(user); // TODO FIX REMOVING / ADDING FRIENDS
-        userRepository.save(friend);
-    }
 
     public boolean userAccessibilityIsFriendsOnly(@NonNull Long userId) {
         try {
