@@ -2,7 +2,6 @@ package root.general.main.services.user;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +10,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import root.general.main.data.User;
-import root.general.main.exceptions.ProfilePictureUploadException;
-import root.general.main.exceptions.UserProfileEditException;
 import root.general.main.data.dto.userprofile.UserProfileEditDTO;
 import root.general.main.data.dto.userprofile.UserProfilePasswordDTO;
+import root.general.main.exceptions.ProfilePictureUploadException;
+import root.general.main.exceptions.UserProfileEditException;
 import root.general.main.services.email.EmailTokenChangeService;
 import root.general.main.services.tokens.TokenChangeEmailService;
-import root.general.main.utils.MapperUtils;
 import root.general.main.utils.InfoMessagesUtils;
+import root.general.main.utils.MapperUtils;
 import root.general.main.utils.ValidationUtils;
 
 import java.io.ByteArrayInputStream;

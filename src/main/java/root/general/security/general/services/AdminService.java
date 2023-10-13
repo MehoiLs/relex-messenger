@@ -6,11 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.database.DatabaseManager;
 import root.general.main.data.User;
-import root.general.main.data.enums.UserRoles;
 import root.general.main.services.user.UserService;
-
-import java.util.List;
-import java.util.Set;
 
 @Slf4j
 @Service

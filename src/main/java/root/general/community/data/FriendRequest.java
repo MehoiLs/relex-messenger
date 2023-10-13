@@ -1,7 +1,10 @@
 package root.general.community.data;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Setter;
+import lombok.Value;
 import root.general.main.data.User;
 
 import java.time.LocalDateTime;

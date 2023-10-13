@@ -22,13 +22,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
+import root.general.main.services.user.UserService;
+import root.general.security.general.data.dto.CredentialsDTO;
 import root.general.security.general.exceptions.TokenIsInvalidatedException;
 import root.general.security.general.exceptions.TokenNotFoundException;
-import root.general.main.services.user.UserService;
 import root.general.security.general.services.InvalidatedJwtTokensService;
-import root.general.security.general.data.dto.CredentialsDTO;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @Component
@@ -108,7 +110,7 @@ public class JwtAuthenticationProvider {
                 getUserByCredentials(credentialsDTO), null, Collections.emptyList());
     }
 
-    public User getUserByCredentials(CredentialsDTO credentialsDTO) throws BadCredentialsException {
+    public User getUserByCredentials(CredentialsDTO credentialsDTO) throws BadCredentialsException, UserNotFoundException {
         String login = credentialsDTO.getLogin();
         String password = credentialsDTO.getPassword();
 

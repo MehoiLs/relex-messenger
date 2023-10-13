@@ -3,7 +3,6 @@ package root.general.main.data;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Value;
-import root.general.main.data.User;
 
 import java.time.LocalDateTime;
 

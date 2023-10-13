@@ -1,8 +1,8 @@
 package root.general.main.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import root.general.main.data.User;
 import root.general.main.data.TokenChangeEmail;
+import root.general.main.data.User;
 
 import java.util.Optional;
 

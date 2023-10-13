@@ -5,11 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
-import root.general.security.general.data.dto.CredentialsDTO;
-import root.general.security.general.exceptions.UserIsNotEnabledException;
+import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 import root.general.main.utils.InfoMessagesUtils;
 import root.general.security.general.components.JwtAuthenticationProvider;
+import root.general.security.general.data.dto.CredentialsDTO;
+import root.general.security.general.exceptions.UserIsNotEnabledException;
 
 
 @Slf4j
@@ -27,7 +28,7 @@ public class AuthenticationService {
     }
 
     public String authenticateUserByCredentials(CredentialsDTO credentials)
-            throws BadCredentialsException, UserIsNotEnabledException {
+            throws BadCredentialsException, UserIsNotEnabledException, UserNotFoundException {
         User user = jwtAuthenticationProvider.getUserByCredentials(credentials);
 
         if (!user.isEnabled())

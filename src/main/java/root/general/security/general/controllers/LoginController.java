@@ -1,5 +1,9 @@
 package root.general.security.general.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,34 +12,46 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import root.general.main.exceptions.UserNotFoundException;
+import root.general.security.general.components.CustomLogoutHandler;
 import root.general.security.general.data.dto.CredentialsDTO;
 import root.general.security.general.exceptions.UserIsNotEnabledException;
-import root.general.security.general.components.CustomLogoutHandler;
 import root.general.security.general.services.AuthenticationService;
 
-@Slf4j
 @RestController
+@Tag(
+        name = "Вход в аккаунт",
+        description = "Производит валидацию данных пользователей (логин и пароль), создаёт JWT токен.")
 public class LoginController {
 
     private final AuthenticationService authenticationService;
-    private final CustomLogoutHandler logoutHandler;
 
     @Autowired
-    public LoginController(AuthenticationService authenticationService, CustomLogoutHandler logoutHandler) {
+    public LoginController(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;
-        this.logoutHandler = logoutHandler;
     }
 
+    @Operation(
+            summary = "Зарегистрировать пользователя",
+            description = "Производит регистрацию пользователя и отправляет ему письмо о подтверждении."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Предоставленные данные были успешно валидированы. Пользователю возвращён JWT токен, " +
+                    "который будет действителен в течении следующих 24 часов." +
+                    "Если же предоставленные данные были некорректными, будет возвращен код состояния `BAD_REQUEST`. " +
+                    "Если же пользователь, попытавшийся войти, является не подтверждённым, " +
+                    "будет возвращен код состояния `UNAUTHORIZED`.",
+            content = @Content(mediaType = "text/plain")
+    )
     @PostMapping("/login")
-    public ResponseEntity<String> logIn(@RequestBody CredentialsDTO credentials) {
+    public ResponseEntity<String> login(@RequestBody CredentialsDTO credentials) {
         try {
             String authResult = authenticationService.authenticateUserByCredentials(credentials);
             return new ResponseEntity<>(authResult, HttpStatus.OK);
-        } catch (BadCredentialsException badCredentialsException) {
-            log.info("There was a login attempt by user: " + credentials.getLogin());
-            return new ResponseEntity<>("Incorrect password.", HttpStatus.BAD_REQUEST);
+        } catch (BadCredentialsException | UserNotFoundException e) {
+            return new ResponseEntity<>("Incorrect login or password.", HttpStatus.BAD_REQUEST);
         } catch (UserIsNotEnabledException userIsNotEnabledException) {
-            log.info("There was a login attempt by a non-enabled user: " + credentials.getLogin());
             return new ResponseEntity<>("Your account is not enabled.", HttpStatus.UNAUTHORIZED);
         }
     }

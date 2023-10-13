@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.services.EmailService;
 import root.general.main.services.tokens.TokenChangeEmailService;
 import root.general.main.utils.AppUtils;
-import root.general.main.services.EmailService;
 
 @Service
 public class EmailTokenChangeService {

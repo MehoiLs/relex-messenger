@@ -1,11 +1,11 @@
 package root.general.security.general.data;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Value;
-
-import java.util.Date;
 
 @Value
 @AllArgsConstructor

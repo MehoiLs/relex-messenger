@@ -1,9 +1,16 @@
 package root.general.main.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,6 +27,9 @@ import root.general.main.utils.MapperUtils;
 
 @RestController
 @RequestMapping("/profile")
+@Tag(
+        name = "Операции над профилем пользователя",
+        description = "Предоставляет API для изменения информации о профиле пользователя.")
 public class UserProfileController {
 
     private final UserProfileService userProfileService;
@@ -31,18 +41,46 @@ public class UserProfileController {
         this.tokenChangeEmailService = tokenChangeEmailService;
     }
 
+    @Operation(
+            summary = "Получить всю информацию о профиле пользователя",
+            description = "Получить всю информацию о профиле пользователя от его лица. "
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Информация о профиле пользователя получена успешно.",
+            content = @Content(mediaType = "application/json")
+    )
     @GetMapping
     public ResponseEntity<UserProfileFullDTO> getUserProfileInfo(@AuthenticationPrincipal User user) {
         UserProfileFullDTO userProfile = MapperUtils.mapUserToUserFullProfileInfo(user);
         return new ResponseEntity<>(userProfile, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Получить информацию о профиле пользователя, доступную для изменения",
+            description = "Получить информацию о профиле пользователя, доступную для изменения (шаблон)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Информация о профиле пользователя, доступная для изменения, получена успешно.",
+            content = @Content(mediaType = "application/json")
+    )
     @GetMapping("/edit")
-    public ResponseEntity<UserProfileEditDTO> getUserProfileEditInfo(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserProfileEditDTO> getUserProfileEditInfoDto (@AuthenticationPrincipal User user) {
         UserProfileEditDTO profileToEdit = MapperUtils.mapUserToUserEditProfileInfo(user);
         return new ResponseEntity<>(profileToEdit, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Изменить информация о профиле пользователя",
+            description = "Изменение информации о профиле пользователя."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Информация о профиле пользователя была успешно изменена. " +
+                    "Если же были предоставлены недопустимые данные, будет возвращен код состояния `BAD_REQUEST`",
+            content = @Content(mediaType = "application/json")
+    )
     @PostMapping("/edit")
     public ResponseEntity<?> editUserProfileInfo(@AuthenticationPrincipal User user,
                                                  @RequestBody UserProfileEditDTO editedProfile) {
@@ -56,6 +94,16 @@ public class UserProfileController {
         }
     }
 
+    @Operation(
+            summary = "Запросить изменение почты пользователя",
+            description = "Запросить изменение почты пользователя."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Запрос на изменение почты пользователя был успешно отправлен. " +
+                    "Если же были предоставлены недопустимые данные, будет возвращен код состояния `BAD_REQUEST`",
+            content = @Content(mediaType = "text/plain")
+    )
     @PostMapping("/edit/email")
     public ResponseEntity<String> requestEditEmail(@AuthenticationPrincipal User user,
                                                    @RequestBody UserProfileEmailDTO emailInfoDTO) {
@@ -69,11 +117,31 @@ public class UserProfileController {
         }
     }
 
+    @Operation(
+            summary = "Запросить шаблон для изменения почты пользователя",
+            description = "Запросить шаблон для изменения почты пользователя."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Шаблон для изменения почты был успешно получен.",
+            content = @Content(mediaType = "application/json")
+    )
     @GetMapping("/edit/email")
-    public ResponseEntity<UserProfileEmailDTO> requestEditEmail(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserProfileEmailDTO> requestEditEmailDto (@AuthenticationPrincipal User user) {
         return new ResponseEntity<>(new UserProfileEmailDTO(user.getEmail()), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Подтвердить изменение почты",
+            description = "Подтвердить изменение почты по токену (ссылке), отправленному ранее на почту (предыдущую)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Почта пользователя была успешно измененена на новую. " +
+                    "Если же токен был неверен, или был аутентифицирован иной пользователь, " +
+                    "будет возвращен код состояния `NOT_FOUND`",
+            content = @Content(mediaType = "text/plain")
+    )
     @GetMapping("/edit/email/confirm/{token}")
     public ResponseEntity<?> getUserProfileEditInfo(@AuthenticationPrincipal User user,
                                                     @PathVariable String token) {
@@ -82,6 +150,18 @@ public class UserProfileController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @Operation(
+            summary = "Изменить аватарку пользователя",
+            description = "Изменить аватарку пользователя (на предоставленную в запросе)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Аватарка пользователя была успешно измененена на новую. " +
+                    "Если же предоставленный файл аватарки неверного формата (не: \".jpeg, .jpg, .png\"), " +
+                    "или же произошла непредвиденная ошибка во время обработки предоставленного файла, " +
+                    "будет возвращен код состояния `BAD_REQUEST`",
+            content = @Content(mediaType = "text/plain")
+    )
     @PostMapping("/edit/pfp")
     public ResponseEntity<String> uploadProfilePicture(@AuthenticationPrincipal User user,
                                                        @RequestParam("image") MultipartFile pfp) {
@@ -95,6 +175,15 @@ public class UserProfileController {
         }
     }
 
+    @Operation(
+            summary = "Получить аватарку пользователя",
+            description = "Получить аватарку пользователя."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Аватарка пользователя была успешно получена.",
+            content = @Content(mediaType = "image/jpg")
+    )
     @GetMapping({"/pfp", "/edit/pfp"})
     public ResponseEntity<?> getProfilePicture(@AuthenticationPrincipal User user) {
         HttpHeaders headers = new HttpHeaders();
@@ -104,8 +193,35 @@ public class UserProfileController {
         return new ResponseEntity<>(inputStream, headers, HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Получить шаблон для изменения пароля пользователя",
+            description = "Получить шаблон для изменения пароля пользователя."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Шаблон для изменения пароля пользователя был успешно получен.",
+            content = @Content(mediaType = "application/json")
+    )
+    public ResponseEntity<UserProfilePasswordDTO> getEditUserPasswordDto (@AuthenticationPrincipal User user,
+                                                 @RequestBody UserProfilePasswordDTO userProfilePassword) {
+        return new ResponseEntity<>(new UserProfilePasswordDTO(
+                "your old password", "your new password"), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Изменить пароль пользователя",
+            description = "Изменить пароль пользователя (подтвердив старый)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Пароль пользователя был успешно изменён," +
+                    "в противном случае, если предоставленный старый пароль неверный, " +
+                    "или же предоставленные данные оказались некорректными (пустые), " +
+                    "будет возвращен код состояния `BAD_REQUEST`.",
+            content = @Content(mediaType = "plain/text")
+    )
     @PostMapping("/edit/password")
-    public ResponseEntity<?> editUserPassword(@AuthenticationPrincipal User user,
+    public ResponseEntity<String> editUserPassword(@AuthenticationPrincipal User user,
                                               @RequestBody UserProfilePasswordDTO userProfilePassword) {
         try {
             String msg = userProfileService.changeUserPassword(user, userProfilePassword);
@@ -117,13 +233,24 @@ public class UserProfileController {
         }
     }
 
+    @Operation(
+            summary = "Удалить пользователя",
+            description = "Удалить пользователя (приготовить пользователя к удалению)."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Пользователь был успешно заблокирован (locked), " +
+                    "и приготовлен к удалению. Если во время обработки запроса возникнет ошибка, " +
+                    "будет возвращен код состояния `BAD_REQUEST`.",
+            content = @Content(mediaType = "plain/text")
+    )
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteUser(@AuthenticationPrincipal User user, HttpServletRequest request) {
         try {
             String msg = userProfileService.prepareUserForDelete(user, request);
             return new ResponseEntity<>(msg, HttpStatus.OK);
         } catch (UserProfileEditException profileEditException) {
-            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.OK);
+            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (NullPointerException nullPointerException) {
             return new ResponseEntity<>("Failed processing the provided data.", HttpStatus.BAD_REQUEST);
         }

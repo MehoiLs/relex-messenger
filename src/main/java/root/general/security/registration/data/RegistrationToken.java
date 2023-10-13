@@ -6,7 +6,6 @@ import lombok.Value;
 import root.general.main.data.User;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @AllArgsConstructor

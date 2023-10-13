@@ -9,10 +9,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import root.general.security.general.repositories.InvalidatedJwtTokensRepository;
 import root.general.main.data.User;
 import root.general.main.services.user.UserService;
 import root.general.security.general.data.InvalidatedJwtToken;
+import root.general.security.general.repositories.InvalidatedJwtTokensRepository;
 
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -1,6 +1,5 @@
 package root.general.main.utils;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
 import root.general.community.data.dto.UserProfileDTO;

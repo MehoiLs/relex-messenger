@@ -1,15 +1,13 @@
 package root.general.security.registration.services;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import root.general.security.registration.repositories.RegistrationTokensRepository;
 import root.general.main.data.User;
 import root.general.security.registration.data.RegistrationToken;
+import root.general.security.registration.repositories.RegistrationTokensRepository;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
