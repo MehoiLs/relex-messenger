@@ -20,4 +20,10 @@ public class UserFriendsService {
         userFriendsRepository.deleteByUserAndFriend(user2, user1);
     }
 
+    public void deleteAllFriendsOfUser(User user) {
+        user.getFriendsList().forEach(friend -> {
+            deleteFriends(user, friend);
+        });
+    }
+
 }

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import root.general.community.services.UserFriendsService;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.repositories.UserRepository;
@@ -20,10 +21,12 @@ import java.util.stream.StreamSupport;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserFriendsService userFriendsService;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserFriendsService userFriendsService) {
         this.userRepository = userRepository;
+        this.userFriendsService = userFriendsService;
     }
 
     // GETTERS
@@ -53,8 +56,7 @@ public class UserService {
                 .collect(Collectors.toSet());
     }
 
-    public Set<User> getUserFriendList(User user) {
-        if (user == null) return Collections.emptySet();
+    public Set<User> getUserFriendList(@NonNull User user) {
         return new HashSet<>(user.getFriendsList());
     }
 
@@ -123,7 +125,7 @@ public class UserService {
                     if(user.getLastOnline().plusDays(7).isBefore(LocalDateTime.now()))
                         usersToDelete.add(user);
                 });
-        getAllUsers().forEach(it -> it.getFriendsList().removeAll(usersToDelete));
+        usersToDelete.forEach(userFriendsService::deleteAllFriendsOfUser);
         usersToDelete.forEach(this::forceDeleteUser);
     }
 
