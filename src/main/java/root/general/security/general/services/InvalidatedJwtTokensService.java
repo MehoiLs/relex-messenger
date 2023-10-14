@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 import root.general.security.general.data.InvalidatedJwtToken;
 import root.general.security.general.repositories.InvalidatedJwtTokensRepository;
@@ -41,11 +42,11 @@ public class InvalidatedJwtTokensService {
             DecodedJWT decoded = verifier.verify(token);
 
             Long userId = Long.parseLong(decoded.getIssuer());
-            User user = userService.getUserById(userId); //TODO catch exception
+            User user = userService.getUserById(userId);
             userService.setActiveSession(user, false);
 
             tokensRepository.save(new InvalidatedJwtToken(token));
-        } catch (JWTVerificationException ignored) {}
+        } catch (JWTVerificationException | UserNotFoundException ignored) {}
     }
 
     public boolean tokenIsExpired(InvalidatedJwtToken token) {

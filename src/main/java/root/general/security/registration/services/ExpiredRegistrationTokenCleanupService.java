@@ -26,9 +26,11 @@ public class ExpiredRegistrationTokenCleanupService {
         registrationTokenService.getAllTokens()
                 .forEach(token -> {
                     if (registrationTokenService.tokenIsExpiredByDate(token.getToken(), rightNow)) {
-                        User userToDelete = registrationTokenService.getUserByRegistrationToken(token.getToken());
-                        registrationTokenService.deleteToken(token);
-                        userService.forceDeleteUser(userToDelete);
+                        try {
+                            User userToDelete = registrationTokenService.getUserByRegistrationToken(token.getToken());
+                            registrationTokenService.deleteToken(token);
+                            userService.forceDeleteUser(userToDelete);
+                        } catch (Exception ignored) {}
                     }
                 });
     }

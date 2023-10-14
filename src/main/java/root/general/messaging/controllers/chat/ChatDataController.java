@@ -101,8 +101,8 @@ public class ChatDataController {
     @GetMapping("/messages/{recipient}/all")
     public ResponseEntity<?> getChatMessageHistory (@PathVariable String recipient,
                                                     @AuthenticationPrincipal User user) {
-        User recipientUser = userService.getUserByUsername(recipient);
         try {
+            User recipientUser = userService.getUserByUsername(recipient);
             return chatMessageService.getChatMessagesHistoryToDownload(user.getId(), recipientUser.getId());
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

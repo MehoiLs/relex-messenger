@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.main.services.EmailService;
 import root.general.main.services.tokens.TokenChangeEmailService;
 import root.general.main.utils.AppUtils;
@@ -20,7 +21,7 @@ public class EmailTokenChangeService {
         this.tokenChangeEmailService = tokenChangeEmailService;
     }
 
-    public void sendConfirmationEmail(User user, String newEmail) {
+    public void sendConfirmationEmail(User user, String newEmail) throws DatabaseRecordNotFound {
         String token = tokenChangeEmailService.tokenExistsForUser(user)
                 ? tokenChangeEmailService.getTokenChangeEmailByUser(user)
                 : tokenChangeEmailService.generateToken(user, newEmail);

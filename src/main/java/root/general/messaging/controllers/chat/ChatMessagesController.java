@@ -6,6 +6,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
+import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 import root.general.messaging.data.ChatMessage;
 import root.general.messaging.data.ChatNotification;
@@ -28,11 +29,14 @@ public class ChatMessagesController {
 
     @MessageMapping("/chat")
     public void processMessage(@Payload ChatMessage chatMessage) {
-        chatMessage.setSenderName(userService.getUserById(
-                chatMessage.getSenderId()).getUsername());
-        chatMessage.setRecipientName(userService.getUserById(
-                chatMessage.getRecipientId()).getUsername());
-
+        try {
+            chatMessage.setSenderName(userService.getUserById(
+                    chatMessage.getSenderId()).getUsername());
+            chatMessage.setRecipientName(userService.getUserById(
+                    chatMessage.getRecipientId()).getUsername());
+        } catch (UserNotFoundException userNotFoundException) {
+            return;
+        }
         ChatMessage saved = chatMessageService.saveSentMessage(chatMessage);
 
         messagingTemplate.convertAndSendToUser(

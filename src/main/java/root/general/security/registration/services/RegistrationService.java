@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 import root.general.main.utils.InfoMessagesUtils;
@@ -33,14 +34,14 @@ public class RegistrationService {
     public String registerUser(User newUser) throws RegistrationException {
         try {
             User possibleUser = userService.getUserByLogin(newUser.getLogin());
-            // User exists and requests a letter
+            // Пользователь уже существует и повторно запрашивает письмо подтверждения
             if (!possibleUser.isEnabled()) {
                 emailConfirmationService.sendConfirmationEmail(possibleUser);
                 log.info("[REGISTRATION SERVICE] A non-enabled user requested a confirmation: " + possibleUser.getLogin());
                 return InfoMessagesUtils.requestConfirmationLetterAgainMsg;
             }
-        } catch (UserNotFoundException ignored) {}
-        // New user
+        } catch (DatabaseRecordNotFound ignored) {}
+        // Новый пользоватлеь
         if (!providedEmailIsUnique(newUser.getEmail()))
             throw new RegistrationException("Email must be unique.");
         if (!providedLoginIsUnique(newUser.getLogin()))
@@ -58,19 +59,27 @@ public class RegistrationService {
         log.info("[REGISTRATION SERVICE] A new user has registered their account: \"" + user.getLogin() +
                 "\" awaiting confirmation.");
 
-        emailConfirmationService.sendConfirmationEmail(user);
+        try {
+            emailConfirmationService.sendConfirmationEmail(user);
+        } catch (DatabaseRecordNotFound databaseRecordNotFound) {
+            log.error("[REGISTRATION SERVICE] Error sending confirmation email for user: {}", user.getLogin(), databaseRecordNotFound);
+            throw new RegistrationException("Unexpected error.");
+        }
         return InfoMessagesUtils.registrationSuccessConfirmationLetterSentMsg;
     }
 
     @Transactional
     public boolean confirmAccount(String token) {
-        User user = registrationTokenService.getUserByRegistrationToken(token);
-        if (user == null) return false;
-        user.setEnabled(true);
-        userService.save(user);
-        registrationTokenService.deleteToken(token);
-        log.info("[REGISTRATION SERVICE] A new user has enabled their account: " + user.getLogin());
-        return true;
+        try {
+            User user = registrationTokenService.getUserByRegistrationToken(token);
+            user.setEnabled(true);
+            userService.save(user);
+            registrationTokenService.deleteToken(token);
+            log.info("[REGISTRATION SERVICE] A new user has enabled their account: " + user.getLogin());
+            return true;
+        } catch (DatabaseRecordNotFound e) {
+            return false;
+        }
     }
 
     private boolean providedLoginIsUnique(String providedLogin) {

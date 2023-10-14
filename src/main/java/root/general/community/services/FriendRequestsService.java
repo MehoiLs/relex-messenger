@@ -11,6 +11,8 @@ import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,20 +30,22 @@ public class FriendRequestsService {
         this.userService = userService;
     }
 
-    public Set<FriendRequest> getAllFriendRequestsForUser (User user) {
+    public Set<FriendRequest> getAllFriendRequests () {
         return StreamSupport
                 .stream(friendRequestsRepository.findAll().spliterator(), false)
                 .collect(Collectors.toSet());
     }
 
-    public String getAllFriendRequestsForUserAsString(User user) {
-        Set<FriendRequest> requestsSet = StreamSupport
-                .stream(friendRequestsRepository.findAll().spliterator(), false)
-                .collect(Collectors.toSet());
+    public Set<FriendRequest> getAllFriendRequestsForUser (User user) {
+        return new HashSet<>(friendRequestsRepository.findByRecipient(user));
+    }
+
+    public String getAllFriendRequestsForUserAsString (User user) {
+        Set<FriendRequest> requestsSet = new HashSet<>(friendRequestsRepository.findByRecipient(user));
         return RequestsUtils.convertAllFriendRequestsToString(requestsSet);
     }
 
-    public void addFriend(String username, User requester) throws UserNotFoundException, FriendRequestException {
+    public void sendFriendRequest(String username, User requester) throws UserNotFoundException, FriendRequestException {
         User recipientUser = userService.getUserByUsername(username);
         if(requester.getFriendsList().contains(recipientUser))
             throw new FriendRequestException("You are already friends with " + username + ".");
@@ -52,7 +56,8 @@ public class FriendRequestsService {
     }
 
     @Transactional
-    public void acceptFriendRequest(String senderUsername, User acceptorUser) throws UserNotFoundException {
+    public void acceptFriendRequest(String senderUsername, User acceptorUser)
+            throws UserNotFoundException, FriendRequestException {
         User senderUser = userService.getUserByUsername(senderUsername);
         Optional<FriendRequest> request =
                 friendRequestsRepository.findBySenderAndRecipient(senderUser, acceptorUser);
@@ -60,12 +65,12 @@ public class FriendRequestsService {
             userService.addFriend(acceptorUser, senderUser);
             friendRequestsRepository.delete(request.get());
         }
-        else throw new UserNotFoundException("User: " + senderUsername + " has not sent you a friend request.");
+        else throw new FriendRequestException("User: " + senderUsername + " has not sent you a friend request.");
     }
 
     @Transactional
     public void acceptAllFriendRequests(User acceptorUser) {
-        Set<FriendRequest> requests = getAllFriendRequestsForUser(acceptorUser);
+        List<FriendRequest> requests = friendRequestsRepository.findByRecipient(acceptorUser);
         requests.forEach(request -> userService.addFriend(acceptorUser, request.getSender()));
         friendRequestsRepository.deleteAllByRecipient(acceptorUser);
     }

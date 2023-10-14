@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
+import root.general.TestUtils;
 import root.general.community.services.UserFriendsService;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
@@ -31,8 +31,8 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    void testGetUserByLogin() {
-        User user = getUser();
+    void testGetUserByLogin() throws UserNotFoundException {
+        User user = TestUtils.getNewDefaultUser();
         when(userRepository.findByLogin("login")).thenReturn(Optional.of(user));
 
         User resultUser = userService.getUserByLogin("login");
@@ -43,9 +43,9 @@ public class UserServiceTest {
     }
 
     @Test
-    void testGetUserByUsername() {
+    void testGetUserByUsername() throws UserNotFoundException {
 
-        User user = getUser();
+        User user = TestUtils.getNewDefaultUser();
         when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
 
         User resultUser = userService.getUserByUsername("username");
@@ -56,8 +56,8 @@ public class UserServiceTest {
     }
 
     @Test
-    void testGetUserByAuth() {
-        User user = getUser();
+    void testGetUserByAuth() throws UserNotFoundException {
+        User user = TestUtils.getNewDefaultUser();
         Authentication auth = mock(Authentication.class);
         when(auth.getPrincipal()).thenReturn(user);
         when(userRepository.findByUsername("username")).thenReturn(Optional.of(user));
@@ -71,17 +71,17 @@ public class UserServiceTest {
 
     @Test
     void testGetAllUsers() {
-        Iterable<User> usersIterable = getUsers();
+        Iterable<User> usersIterable = TestUtils.getNewUsers();
         when(userRepository.findAll()).thenReturn(usersIterable);
         Set<User> result = userService.getAllUsers();
 
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(TestUtils.getNewUsers().size(), result.size());
     }
 
     @Test
     void testGetUserFriendList() {
-        List<User> users = getUsers().stream().toList();
+        List<User> users = TestUtils.getNewUsers();
         User user1 = users.get(0);
         User user2 = users.get(1);
         user1.getFriendsList().add(user2);
@@ -98,7 +98,7 @@ public class UserServiceTest {
 
     @Test
     void testRestoreUserAccount() {
-        User user = getUser();
+        User user = TestUtils.getNewDefaultUser();
         user.setLocked(true);
         userService.restoreUserAccount(user);
 
@@ -107,7 +107,7 @@ public class UserServiceTest {
 
     @Test
     void testAddFriend() {
-        List<User> users = getUsers().stream().toList();
+        List<User> users = TestUtils.getNewUsers();
         User user = users.get(0);
         User friend = users.get(1);
 
@@ -119,12 +119,14 @@ public class UserServiceTest {
 
     @Test
     void testDeleteAllLockedUsers() {
+        // Последний раз онлайн больше недели назад
         performDeleteAllLockedUsersTest(LocalDateTime.now().minusDays(8), true);
+        // Последний раз онлайн меньше недели назад
         performDeleteAllLockedUsersTest(LocalDateTime.now().minusDays(5), false);
     }
 
     private void performDeleteAllLockedUsersTest(LocalDateTime lastOnline, boolean shouldBeDeleted) {
-        List<User> usersFakeRepository = new ArrayList<>(getUsers().stream().toList());
+        List<User> usersFakeRepository = new ArrayList<>(TestUtils.getNewUsers());
         User commonUser = usersFakeRepository.get(0);
         User lockedUser = usersFakeRepository.get(1);
 
@@ -136,7 +138,7 @@ public class UserServiceTest {
 
         User lockedUserArtefact = lockedUser;
 
-        when(userRepository.findAll()).thenReturn(usersFakeRepository::iterator);
+        when(userRepository.findAll()).thenReturn(usersFakeRepository);
         lenient().doAnswer(invocation -> {
             User userToDelete = invocation.getArgument(0);
             usersFakeRepository.remove(userToDelete);
@@ -158,16 +160,4 @@ public class UserServiceTest {
         assertEquals(shouldBeDeleted, !commonUser.getFriendsList().contains(lockedUserArtefact));
     }
 
-    private Set<User> getUsers() {
-        User user1 = new User("email@website.com", "login", "password",
-                "username", "Firstname", "Lastname");
-        User user2 = new User("otheremail@website.org", "somelogin", "apassword",
-                "nickname", "Name", "Surname");
-        return Set.of(user1, user2);
-    }
-
-    private User getUser() {
-        return new User("email@website.com", "login", "password",
-                "username", "Firstname", "Lastname");
-    }
 }

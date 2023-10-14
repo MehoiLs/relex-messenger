@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import root.general.main.data.User;
 import root.general.main.data.dto.userprofile.UserProfileEditDTO;
 import root.general.main.data.dto.userprofile.UserProfilePasswordDTO;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.main.exceptions.ProfilePictureUploadException;
 import root.general.main.exceptions.UserProfileEditException;
 import root.general.main.services.email.EmailTokenChangeService;
@@ -53,7 +54,7 @@ public class UserProfileService {
         return userService.save(MapperUtils.mapUserProfileInfoToExistingUser(profileEditInfo, user));
     }
 
-    public User setFriendsList(@NonNull User user, boolean friendsListIsHidden) {
+    public User setFriendsListHidden(@NonNull User user, boolean friendsListIsHidden) {
         user.setFriendsListHidden(friendsListIsHidden);
         return userService.save(user);
     }
@@ -63,10 +64,12 @@ public class UserProfileService {
         return userService.save(user);
     }
 
-    public String requestChangeUserEmail(@NonNull User user, @NonNull String email) throws UserProfileEditException {
+    public String requestChangeUserEmail(@NonNull User user, @NonNull String email)
+            throws UserProfileEditException, DatabaseRecordNotFound {
 
         if(tokenChangeEmailService.userHasExistingToken(user)) {
-            emailTokenChangeService.sendConfirmationEmail(user, email);
+            emailTokenChangeService.sendConfirmationEmail(user,
+                    tokenChangeEmailService.getTokenChangeEmailByUser(user));
             log.info("[USER PROFILE SERVICE] User " + user.getLogin() + " has requested an e-mail change to \""
                     + email + "\" again.");
             return InfoMessagesUtils.requestConfirmationLetterAgainMsg;
@@ -132,9 +135,7 @@ public class UserProfileService {
         }
         userService.save(user);
         log.info("[USER PROFILE SERVICE] Prepared user: \"" + user.getLogin() + "\" for deleting.");
-        return "You have successfully deleted your account. However, it will remain being deactivated for " +
-                "7 days, before it is deleted permanently. In case you want to restore your account, " +
-                "you will have to login with your credentials again.";
+        return InfoMessagesUtils.userRequestedDeleteAccountMsg;
     }
 
 }

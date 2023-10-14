@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import root.general.main.exceptions.UserNotFoundException;
 import root.general.security.general.components.JwtAuthenticationProvider;
 import root.general.security.general.data.dto.CredentialsDTO;
 import root.general.security.utils.WebSecurityUtils;
@@ -43,7 +44,7 @@ public class UsernamePasswordAuthFilter extends OncePerRequestFilter {
             try {
                 SecurityContextHolder.getContext().setAuthentication(
                         JWTAuthenticationProvider.validateCredentials(credentialsDTO));
-            } catch (BadCredentialsException badCredentialsException) {
+            } catch (BadCredentialsException | UserNotFoundException exception) {
                 log.info("[UsernamePasswordAuthFilter] Could not validate a user with login: " + credentialsDTO.getLogin());
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 SecurityContextHolder.clearContext();

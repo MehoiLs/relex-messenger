@@ -96,7 +96,7 @@ public class CommunityController {
     public ResponseEntity<?> addUserAsFriend(@PathVariable String username,
                                              @AuthenticationPrincipal User requesterUser) {
         try {
-            friendRequestsService.addFriend(username, requesterUser);
+            friendRequestsService.sendFriendRequest(username, requesterUser);
             return new ResponseEntity<>("Successfully sent the request to: " + username + ".", HttpStatus.OK);
         } catch (FriendRequestException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);

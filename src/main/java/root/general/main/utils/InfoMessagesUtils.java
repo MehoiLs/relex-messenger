@@ -34,4 +34,9 @@ public final class InfoMessagesUtils {
 
     public static final String fileNameIsNullMsg =
             fileUploadErrorMsg + " The file name is null.";
+
+    public static final String userRequestedDeleteAccountMsg =
+            "You have successfully deleted your account. However, it will remain being deactivated for " +
+            "7 days, before it is deleted permanently. In case you want to restore your account, " +
+            "you will have to login with your credentials again.";
 }

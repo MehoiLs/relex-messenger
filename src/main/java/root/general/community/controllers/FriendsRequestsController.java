@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import root.general.community.exception.FriendRequestException;
 import root.general.community.services.FriendRequestsService;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
@@ -53,7 +54,7 @@ public class FriendsRequestsController {
         try {
             friendRequestsService.acceptFriendRequest(sender, user);
             return new ResponseEntity<>("Added " + sender + " as friend!", HttpStatus.OK);
-        } catch (UserNotFoundException e) {
+        } catch (UserNotFoundException | FriendRequestException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }

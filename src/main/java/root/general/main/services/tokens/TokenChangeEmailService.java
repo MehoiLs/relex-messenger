@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.general.main.data.TokenChangeEmail;
 import root.general.main.data.User;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.main.repositories.TokenChangeEmailRepository;
 import root.general.main.services.user.UserService;
 
@@ -30,9 +31,9 @@ public class TokenChangeEmailService {
         this.userService = userService;
     }
 
-    public TokenChangeEmail getToken(@NonNull String token) {
+    public TokenChangeEmail getToken(@NonNull String token) throws DatabaseRecordNotFound {
         return tokenChangeEmailRepository.findById(token)
-                .orElse(null);
+                .orElseThrow(() -> new DatabaseRecordNotFound("Token does not exist: " + token));
     }
 
     public Set<TokenChangeEmail> getAllTokens() {
@@ -40,9 +41,15 @@ public class TokenChangeEmailService {
                 .collect(Collectors.toSet());
     }
 
-    public String getTokenChangeEmailByUser(@NonNull User user) {
+    public String getTokenChangeEmailByUser(@NonNull User user) throws DatabaseRecordNotFound {
         Optional<TokenChangeEmail> tokenChangeEmail = tokenChangeEmailRepository.findByUser(user);
-        return tokenChangeEmail.map(TokenChangeEmail::getToken).orElse(null);
+        return tokenChangeEmail.map(TokenChangeEmail::getToken)
+                .orElseThrow(() -> new DatabaseRecordNotFound("Token does not exist: " + user.getUsername()));
+    }
+
+    public TokenChangeEmail getTokenChangeEmailAsObjectByUser (@NonNull User user) throws DatabaseRecordNotFound {
+        return tokenChangeEmailRepository.findByUser(user)
+                .orElseThrow(() -> new DatabaseRecordNotFound("Token does not exist by user: " + user.getUsername()));
     }
 
     public String generateToken(@NonNull User user, @NonNull String newEmail) {
@@ -60,7 +67,7 @@ public class TokenChangeEmailService {
     }
 
     @Transactional
-    public boolean confirmTokenForUser(@NonNull String token, @NonNull User user) {
+    public boolean confirmTokenForUser(@NonNull String token, @NonNull User user) throws DatabaseRecordNotFound {
         TokenChangeEmail foundToken = getToken(token);
         if (foundToken == null) return false;
         if (userService.getUserById(foundToken.getUser().getId()) == user) return false;

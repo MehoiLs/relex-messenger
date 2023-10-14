@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.main.services.EmailService;
 import root.general.main.utils.AppUtils;
 
@@ -19,7 +20,7 @@ public class EmailConfirmationService {
         this.registrationTokenService = registrationTokenService;
     }
 
-    public void sendConfirmationEmail(User user) {
+    public void sendConfirmationEmail(User user) throws DatabaseRecordNotFound {
         String token = registrationTokenService.tokenExistsForUser(user)
                 ? registrationTokenService.getRegistrationTokenByUser(user)
                 : registrationTokenService.generateToken(user);

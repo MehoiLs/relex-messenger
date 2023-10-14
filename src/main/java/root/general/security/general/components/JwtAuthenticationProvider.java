@@ -105,7 +105,8 @@ public class JwtAuthenticationProvider {
         }
     }
 
-    public Authentication validateCredentials(CredentialsDTO credentialsDTO) throws BadCredentialsException {
+    public Authentication validateCredentials(CredentialsDTO credentialsDTO)
+            throws BadCredentialsException, UserNotFoundException {
         return new UsernamePasswordAuthenticationToken(
                 getUserByCredentials(credentialsDTO), null, Collections.emptyList());
     }
@@ -153,6 +154,6 @@ public class JwtAuthenticationProvider {
             User user = userService.getUserById(Long.parseLong(decoded.getIssuer()));
             userService.setActiveSession(user, false);
         }
-        catch (JWTDecodeException ignored) {}
+        catch (JWTDecodeException | UserNotFoundException ignored) {}
     }
 }

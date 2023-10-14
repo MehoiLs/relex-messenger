@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.security.registration.data.RegistrationToken;
 import root.general.security.registration.repositories.RegistrationTokensRepository;
 
@@ -29,19 +30,21 @@ public class RegistrationTokenService {
                 .collect(Collectors.toSet());
     }
 
-    public RegistrationToken getToken(@NonNull String token) {
+    public RegistrationToken getToken(@NonNull String token) throws DatabaseRecordNotFound {
         return registrationTokensRepository.findById(token)
-                .orElse(null);
+                .orElseThrow(() -> new DatabaseRecordNotFound("Registration token not found: " + token));
     }
 
-    public User getUserByRegistrationToken(@NonNull String token) {
+    public User getUserByRegistrationToken(@NonNull String token) throws DatabaseRecordNotFound {
         Optional<RegistrationToken> registrationToken = registrationTokensRepository.findById(token);
-        return registrationToken.map(RegistrationToken::getUser).orElse(null);
+        return registrationToken.map(RegistrationToken::getUser)
+                .orElseThrow(() -> new DatabaseRecordNotFound("Registration token not found: " + token));
     }
 
-    public String getRegistrationTokenByUser(@NonNull User user) {
+    public String getRegistrationTokenByUser(@NonNull User user) throws DatabaseRecordNotFound {
         Optional<RegistrationToken> registrationToken = registrationTokensRepository.findByUser(user);
-        return registrationToken.map(RegistrationToken::getToken).orElse(null);
+        return registrationToken.map(RegistrationToken::getToken)
+                .orElseThrow(() -> new DatabaseRecordNotFound("Registration token not found by user: " + user));
     }
 
     public boolean tokenExistsForUser(@NonNull User user) {

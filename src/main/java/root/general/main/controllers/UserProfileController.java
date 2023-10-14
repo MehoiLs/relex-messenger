@@ -15,10 +15,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import root.general.main.data.User;
-import root.general.main.data.dto.userprofile.UserProfileEditDTO;
-import root.general.main.data.dto.userprofile.UserProfileEmailDTO;
-import root.general.main.data.dto.userprofile.UserProfileFullDTO;
-import root.general.main.data.dto.userprofile.UserProfilePasswordDTO;
+import root.general.main.data.dto.userprofile.*;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.main.exceptions.ProfilePictureUploadException;
 import root.general.main.exceptions.UserProfileEditException;
 import root.general.main.services.tokens.TokenChangeEmailService;
@@ -110,7 +108,7 @@ public class UserProfileController {
         try {
             String msg = userProfileService.requestChangeUserEmail(user, emailInfoDTO.getEmail());
             return new ResponseEntity<>(msg, HttpStatus.OK);
-        } catch (UserProfileEditException profileEditException) {
+        } catch (UserProfileEditException | DatabaseRecordNotFound profileEditException) {
             return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (NullPointerException nullPointerException) {
             return new ResponseEntity<>("Failed processing the provided data.", HttpStatus.BAD_REQUEST);
@@ -145,8 +143,10 @@ public class UserProfileController {
     @GetMapping("/edit/email/confirm/{token}")
     public ResponseEntity<?> getUserProfileEditInfo(@AuthenticationPrincipal User user,
                                                     @PathVariable String token) {
-        if (tokenChangeEmailService.confirmTokenForUser(token, user))
-            return new ResponseEntity<>("You have successfully changed your e-mail!", HttpStatus.OK);
+        try {
+            if (tokenChangeEmailService.confirmTokenForUser(token, user))
+                return new ResponseEntity<>("You have successfully changed your e-mail!", HttpStatus.OK);
+        } catch (DatabaseRecordNotFound ignored) {}
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
@@ -202,6 +202,7 @@ public class UserProfileController {
             description = "Шаблон для изменения пароля пользователя был успешно получен.",
             content = @Content(mediaType = "application/json")
     )
+    @GetMapping("/edit/password")
     public ResponseEntity<UserProfilePasswordDTO> getEditUserPasswordDto (@AuthenticationPrincipal User user,
                                                  @RequestBody UserProfilePasswordDTO userProfilePassword) {
         return new ResponseEntity<>(new UserProfilePasswordDTO(
@@ -209,7 +210,7 @@ public class UserProfileController {
     }
 
     @Operation(
-            summary = "Изменить пароль пользователя",
+            summary = "Изменить пароль",
             description = "Изменить пароль пользователя (подтвердив старый)."
     )
     @ApiResponse(
@@ -222,7 +223,7 @@ public class UserProfileController {
     )
     @PostMapping("/edit/password")
     public ResponseEntity<String> editUserPassword(@AuthenticationPrincipal User user,
-                                              @RequestBody UserProfilePasswordDTO userProfilePassword) {
+                                                   @RequestBody UserProfilePasswordDTO userProfilePassword) {
         try {
             String msg = userProfileService.changeUserPassword(user, userProfilePassword);
             return new ResponseEntity<>(msg, HttpStatus.OK);
@@ -231,6 +232,41 @@ public class UserProfileController {
         } catch (NullPointerException nullPointerException) {
             return new ResponseEntity<>("Failed processing the provided data.", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @Operation(
+            summary = "Получить шаблон для изменения настроек приватности",
+            description = "Получить шаблон для изменения настроек приватности пользователя."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Шаблон для изменения настроек приватности пользователя был успешно получен.",
+            content = @Content(mediaType = "application/json")
+    )
+    @GetMapping("/edit/privacy")
+    public ResponseEntity<UserProfilePrivacyDTO> getEditPrivacySettings(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(new UserProfilePrivacyDTO(), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "Изменить настройки приватности",
+            description = "Изменить настройки приватности пользователя."
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Настройки приватности были успешно изменены. " +
+                    "Пользователи возвращены обновлённые настройки приватности.",
+            content = @Content(mediaType = "plain/text")
+    )
+    @PostMapping("/edit/privacy")
+    public ResponseEntity<String> editPrivacySettings(@AuthenticationPrincipal User user,
+                                                 @RequestBody UserProfilePrivacyDTO userProfilePrivacy) {
+        userProfileService.setFriendsListHidden(user, userProfilePrivacy.isFriendsListHidden());
+        userProfileService.setMessagesFriendsOnly(user, userProfilePrivacy.isFriendsOnlyMessages());
+        String output = "Has successfully set your privacy settings to:\n" +
+                "\tFriends list is hidden: " + user.isFriendsListHidden() +
+                "\tMessages are friends only: " + user.isAccessibilityFriendsOnly() + ".";
+        return new ResponseEntity<>(output, HttpStatus.OK);
     }
 
     @Operation(
