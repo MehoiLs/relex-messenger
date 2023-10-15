@@ -40,12 +40,13 @@ public class RegistrationService {
                 log.info("[REGISTRATION SERVICE] A non-enabled user requested a confirmation: " + possibleUser.getLogin());
                 return InfoMessagesUtils.requestConfirmationLetterAgainMsg;
             }
+            else throw new RegistrationException("Login must be unique.");
         } catch (DatabaseRecordNotFound ignored) {}
-        // Новый пользоватлеь
+        // Новый пользователь
         if (!providedEmailIsUnique(newUser.getEmail()))
             throw new RegistrationException("Email must be unique.");
-        if (!providedLoginIsUnique(newUser.getLogin()))
-            throw new RegistrationException("Login must be unique.");
+//        if (!providedLoginIsUnique(newUser.getLogin()))
+//            throw new RegistrationException("Login must be unique.");
 
         User user = new User(
                 newUser.getEmail(),
@@ -83,12 +84,12 @@ public class RegistrationService {
     }
 
     private boolean providedLoginIsUnique(String providedLogin) {
-        return StreamSupport.stream(userService.getAllUsers().spliterator(), false)
+        return userService.getAllUsers().stream()
                 .noneMatch(user -> user.getLogin().equals(providedLogin));
     }
 
     private boolean providedEmailIsUnique(String providedEmail) {
-        return StreamSupport.stream(userService.getAllUsers().spliterator(), false)
+        return userService.getAllUsers().stream()
                 .noneMatch(user -> user.getEmail().equals(providedEmail));
     }
 

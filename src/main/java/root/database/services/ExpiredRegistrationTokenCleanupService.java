@@ -1,10 +1,11 @@
-package root.general.security.registration.services;
+package root.database.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
 import root.general.main.services.user.UserService;
+import root.general.security.registration.services.RegistrationTokenService;
 
 import java.time.LocalDateTime;
 

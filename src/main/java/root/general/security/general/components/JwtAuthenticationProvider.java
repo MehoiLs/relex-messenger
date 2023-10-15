@@ -102,13 +102,18 @@ public class JwtAuthenticationProvider {
             throw new AuthenticationServiceException("Could not verify the provided token.");
         } catch (UserNotFoundException userNotFoundException) {
             throw new AuthenticationServiceException("Could not find the issuer of the token");
+        } catch (NullPointerException nullPointerException) {
+            throw new AuthenticationServiceException("Error while verifying the token. " +
+                    "Probably tried to get inappropriate claims.");
         }
     }
 
     public Authentication validateCredentials(CredentialsDTO credentialsDTO)
             throws BadCredentialsException, UserNotFoundException {
+        User user = getUserByCredentials(credentialsDTO);
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().name()));
         return new UsernamePasswordAuthenticationToken(
-                getUserByCredentials(credentialsDTO), null, Collections.emptyList());
+                user, null, authorities);
     }
 
     public User getUserByCredentials(CredentialsDTO credentialsDTO) throws BadCredentialsException, UserNotFoundException {

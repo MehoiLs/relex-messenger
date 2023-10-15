@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
+import root.general.main.exceptions.DatabaseRecordNotFound;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 import root.general.security.general.data.InvalidatedJwtToken;
@@ -64,9 +65,9 @@ public class InvalidatedJwtTokensService {
         return tokensRepository.existsById(token);
     }
 
-    public InvalidatedJwtToken getToken(String token) {
+    public InvalidatedJwtToken getToken(String token) throws DatabaseRecordNotFound {
         return tokensRepository.findById(token)
-                .orElse(null);
+                .orElseThrow(() -> new DatabaseRecordNotFound("Invalidated token not found: " + token));
     }
 
     public Set<InvalidatedJwtToken> getAllTokens() {

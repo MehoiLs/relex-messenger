@@ -13,7 +13,7 @@ public final class InfoMessagesUtils {
     public static final String requestConfirmationLetterAgainMsg =
             "You have requested a confirmation letter again. Please check your inbox. " +
             "However, if you haven't received the letter again, try sending the request later.";
-
+    
     public static final String jwtTokenAuthenticationReminderMsg =
             "Remember, the token is given once. If you lost it, you have to logout and then " +
                     "login again to receive a new one.";
