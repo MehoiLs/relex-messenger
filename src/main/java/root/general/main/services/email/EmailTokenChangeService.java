@@ -15,7 +15,6 @@ public class EmailTokenChangeService {
     private final EmailService emailService;
     private final TokenChangeEmailService tokenChangeEmailService;
 
-    @Autowired
     public EmailTokenChangeService(EmailService emailService, TokenChangeEmailService tokenChangeEmailService) {
         this.emailService = emailService;
         this.tokenChangeEmailService = tokenChangeEmailService;

@@ -28,7 +28,6 @@ public class ChatPageController {
     private final JwtAuthenticationProvider authenticationProvider;
     private final UserService userService;
 
-    @Autowired
     public ChatPageController(JwtAuthenticationProvider authenticationProvider,
                               UserService userService) {
         this.authenticationProvider = authenticationProvider;

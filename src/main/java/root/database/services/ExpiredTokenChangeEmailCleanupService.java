@@ -13,7 +13,6 @@ public class ExpiredTokenChangeEmailCleanupService {
 
     private final TokenChangeEmailService tokenChangeEmailService;
 
-    @Autowired
     public ExpiredTokenChangeEmailCleanupService(TokenChangeEmailService tokenChangeEmailService) {
         this.tokenChangeEmailService = tokenChangeEmailService;
     }

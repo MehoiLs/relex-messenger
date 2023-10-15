@@ -34,7 +34,6 @@ public class UserProfileController {
     private final UserProfileService userProfileService;
     private final TokenChangeEmailService tokenChangeEmailService;
 
-    @Autowired
     public UserProfileController(UserProfileService userProfileService, TokenChangeEmailService tokenChangeEmailService) {
         this.userProfileService = userProfileService;
         this.tokenChangeEmailService = tokenChangeEmailService;
@@ -151,13 +150,13 @@ public class UserProfileController {
     )
     @GetMapping("/edit/email/confirm/{token}")
     public ResponseEntity<DefaultMessageDTO> getUserProfileEditInfo(@AuthenticationPrincipal User user,
-                                                    @PathVariable String token) {
+                                                                    @PathVariable String token) {
         try {
             if (tokenChangeEmailService.confirmTokenForUser(token, user))
                 return new ResponseEntity<>(
                         new DefaultMessageDTO("You have successfully changed your e-mail!"),
                         HttpStatus.OK);
-        } catch (DatabaseRecordNotFound ignored) {}
+        } catch (DatabaseRecordNotFound | NullPointerException ignored) {}
         return new ResponseEntity<>(
                 new DefaultMessageDTO("Not found."),
                 HttpStatus.NOT_FOUND);

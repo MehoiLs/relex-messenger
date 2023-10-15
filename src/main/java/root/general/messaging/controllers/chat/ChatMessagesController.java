@@ -20,7 +20,6 @@ public class ChatMessagesController {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @Autowired
     public ChatMessagesController(UserService userService, ChatMessageService chatMessageService, SimpMessagingTemplate messagingTemplate) {
         this.userService = userService;
         this.chatMessageService = chatMessageService;

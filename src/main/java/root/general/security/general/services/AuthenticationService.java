@@ -21,7 +21,6 @@ public class AuthenticationService {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final UserService userService;
 
-    @Autowired
     public AuthenticationService(JwtAuthenticationProvider jwtAuthenticationProvider,
                                  UserService userService) {
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;

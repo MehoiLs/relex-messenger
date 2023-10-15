@@ -25,7 +25,6 @@ public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
 
-    @Autowired
     public ChatMessageService(ChatMessageRepository chatMessageRepository) {
         this.chatMessageRepository = chatMessageRepository;
     }

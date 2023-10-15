@@ -43,7 +43,6 @@ public class JwtAuthenticationProvider {
     private final BCryptPasswordEncoder passwordEncoder;
     private final InvalidatedJwtTokensService tokensService;
 
-    @Autowired
     public JwtAuthenticationProvider(UserService userService,
                                      BCryptPasswordEncoder passwordEncoder,
                                      InvalidatedJwtTokensService tokensService) {

@@ -33,7 +33,6 @@ public class WebSecurityConfig {
     private final JwtAuthenticationProvider jwtAuthenticationProvider;
     private final CustomLogoutHandler logoutHandler;
 
-    @Autowired
     public WebSecurityConfig(UserAuthenticationEntryPoint userAuthenticationEntryPoint, JwtAuthenticationProvider jwtAuthenticationProvider, CustomLogoutHandler logoutHandler) {
         this.userAuthenticationEntryPoint = userAuthenticationEntryPoint;
         this.jwtAuthenticationProvider = jwtAuthenticationProvider;

@@ -20,7 +20,6 @@ public class RegistrationTokenService {
 
     private final RegistrationTokensRepository registrationTokensRepository;
 
-    @Autowired
     public RegistrationTokenService(RegistrationTokensRepository registrationTokensRepository) {
         this.registrationTokensRepository = registrationTokensRepository;
     }

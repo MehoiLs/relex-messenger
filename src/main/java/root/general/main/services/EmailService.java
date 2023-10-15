@@ -19,7 +19,6 @@ public class EmailService {
 
     private final int maxSendRetries = 3;
 
-    @Autowired
     public EmailService(JavaMailSender mailSender) {
         this.javaMailSender = mailSender;
     }

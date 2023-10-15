@@ -33,7 +33,6 @@ public class UserProfileService {
     private final TokenChangeEmailService tokenChangeEmailService;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired
     public UserProfileService(UserService userService,
                               EmailTokenChangeService emailTokenChangeService,
                               TokenChangeEmailService tokenChangeEmailService,

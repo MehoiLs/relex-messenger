@@ -14,7 +14,6 @@ public class DatabaseCleanerService {
     private final ExpiredTokenChangeEmailCleanupService expiredTokenChangeEmailCleanupService;
     private final UserService userService;
 
-    @Autowired
     public DatabaseCleanerService(ExpiredRegistrationTokenCleanupService expiredRegistrationTokenCleanupService,
                                   InvalidatedJwtTokenCleanupService invalidatedJwtTokenCleanupService,
                                   ExpiredTokenChangeEmailCleanupService expiredTokenChangeEmailCleanupService,

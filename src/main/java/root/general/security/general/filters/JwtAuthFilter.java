@@ -23,7 +23,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtAuthenticationProvider authenticationProvider;
 
-    @Autowired
     public JwtAuthFilter(JwtAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
     }

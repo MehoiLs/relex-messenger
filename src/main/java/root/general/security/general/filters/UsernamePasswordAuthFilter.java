@@ -24,7 +24,6 @@ public class UsernamePasswordAuthFilter extends OncePerRequestFilter {
 
     private final JwtAuthenticationProvider JWTAuthenticationProvider;
 
-    @Autowired
     public UsernamePasswordAuthFilter(JwtAuthenticationProvider JWTAuthenticationProvider) {
         this.JWTAuthenticationProvider = JWTAuthenticationProvider;
     }

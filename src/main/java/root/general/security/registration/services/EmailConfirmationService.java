@@ -14,7 +14,6 @@ public class EmailConfirmationService {
     private final EmailService emailService;
     private final RegistrationTokenService registrationTokenService;
 
-    @Autowired
     public EmailConfirmationService(EmailService emailService, RegistrationTokenService registrationTokenService) {
         this.emailService = emailService;
         this.registrationTokenService = registrationTokenService;

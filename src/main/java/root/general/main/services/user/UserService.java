@@ -23,7 +23,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserFriendsService userFriendsService;
 
-    @Autowired
     public UserService(UserRepository userRepository, UserFriendsService userFriendsService) {
         this.userRepository = userRepository;
         this.userFriendsService = userFriendsService;

@@ -23,7 +23,6 @@ public class CookieTokenAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtAuthenticationProvider authenticationProvider;
 
-    @Autowired
     public CookieTokenAuthenticationFilter(JwtAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
     }
@@ -33,7 +32,7 @@ public class CookieTokenAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         if (WebSecurityUtils.isIgnoreTokenRequest(request)) {
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response); //TODO FIX
             return;
         }
         String token = AppUtils.extractTokenFromCookie(request);

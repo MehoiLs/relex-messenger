@@ -23,7 +23,6 @@ public class RegistrationService {
     private final RegistrationTokenService registrationTokenService;
     private final UserService userService;
 
-    @Autowired
     public RegistrationService(BCryptPasswordEncoder passwordEncoder, EmailConfirmationService emailConfirmationService, RegistrationTokenService registrationTokenService, UserService userService) {
         this.passwordEncoder = passwordEncoder;
         this.emailConfirmationService = emailConfirmationService;

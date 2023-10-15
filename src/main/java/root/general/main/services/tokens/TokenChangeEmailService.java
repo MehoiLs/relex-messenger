@@ -25,7 +25,6 @@ public class TokenChangeEmailService {
     private final TokenChangeEmailRepository tokenChangeEmailRepository;
     private final UserService userService;
 
-    @Autowired
     public TokenChangeEmailService(TokenChangeEmailRepository tokenChangeEmailRepository, UserService userService) {
         this.tokenChangeEmailRepository = tokenChangeEmailRepository;
         this.userService = userService;

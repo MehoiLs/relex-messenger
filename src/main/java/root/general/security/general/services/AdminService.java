@@ -15,7 +15,6 @@ public class AdminService {
     private final UserService userService;
     private final DatabaseManager databaseManager;
 
-    @Autowired
     public AdminService(UserService userService, DatabaseManager databaseManager) {
         this.userService = userService;
         this.databaseManager = databaseManager;

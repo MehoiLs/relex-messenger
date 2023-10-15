@@ -29,7 +29,6 @@ public class InvalidatedJwtTokensService {
     private final InvalidatedJwtTokensRepository tokensRepository;
     private final UserService userService;
 
-    @Autowired
     public InvalidatedJwtTokensService(InvalidatedJwtTokensRepository tokensRepository, UserService userService) {
         this.tokensRepository = tokensRepository;
         this.userService = userService;

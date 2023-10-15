@@ -26,7 +26,6 @@ public class UserCommunityService {
     private final FriendRequestsService friendRequestsService;
     private final ChatMessageService chatMessageService;
 
-    @Autowired
     public UserCommunityService(UserService userService, UserFriendsService userFriendsService, FriendRequestsService friendRequestsService, ChatMessageService chatMessageService) {
         this.userService = userService;
         this.userFriendsService = userFriendsService;

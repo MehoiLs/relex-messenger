@@ -30,7 +30,6 @@ public class ChatDataController {
     private final ChatMessageService chatMessageService;
     private final UserService userService;
 
-    @Autowired
     public ChatDataController(ChatMessageService chatMessageService, UserService userService) {
         this.chatMessageService = chatMessageService;
         this.userService = userService;

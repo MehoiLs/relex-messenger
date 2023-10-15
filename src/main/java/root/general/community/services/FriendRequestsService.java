@@ -22,7 +22,6 @@ public class FriendRequestsService {
     private final FriendRequestsRepository friendRequestsRepository;
     private final UserService userService;
 
-    @Autowired
     public FriendRequestsService(FriendRequestsRepository friendRequestsRepository, UserService userService) {
         this.friendRequestsRepository = friendRequestsRepository;
         this.userService = userService;

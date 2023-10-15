@@ -12,7 +12,6 @@ public class DatabaseUserSessionValidationService {
 
     private final UserService userService;
 
-    @Autowired
     public DatabaseUserSessionValidationService(UserService userService) {
         this.userService = userService;
     }

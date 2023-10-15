@@ -16,7 +16,6 @@ public class ExpiredRegistrationTokenCleanupService {
     private final RegistrationTokenService registrationTokenService;
     private final UserService userService;
 
-    @Autowired
     public ExpiredRegistrationTokenCleanupService(RegistrationTokenService registrationTokenService, UserService userService) {
         this.registrationTokenService = registrationTokenService;
         this.userService = userService;

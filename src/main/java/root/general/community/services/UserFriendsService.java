@@ -10,7 +10,6 @@ public class UserFriendsService {
 
     private final UserFriendsRepository userFriendsRepository;
 
-    @Autowired
     public UserFriendsService(UserFriendsRepository userFriendsRepository) {
         this.userFriendsRepository = userFriendsRepository;
     }

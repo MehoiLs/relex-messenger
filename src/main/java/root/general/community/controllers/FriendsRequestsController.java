@@ -27,7 +27,6 @@ public class FriendsRequestsController {
 
     private final FriendRequestsService friendRequestsService;
 
-    @Autowired
     public FriendsRequestsController(FriendRequestsService friendRequestsService) {
         this.friendRequestsService = friendRequestsService;
     }

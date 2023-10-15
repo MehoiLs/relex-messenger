@@ -30,7 +30,6 @@ public class CommunityController {
     private final UserCommunityService userCommunityService;
     private final FriendRequestsService friendRequestsService;
 
-    @Autowired
     public CommunityController(UserCommunityService userCommunityService, FriendRequestsService friendRequestsService) {
         this.userCommunityService = userCommunityService;
         this.friendRequestsService = friendRequestsService;

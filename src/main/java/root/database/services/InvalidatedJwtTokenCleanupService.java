@@ -11,7 +11,6 @@ public class InvalidatedJwtTokenCleanupService {
 
     private final InvalidatedJwtTokensService tokensService;
 
-    @Autowired
     public InvalidatedJwtTokenCleanupService(InvalidatedJwtTokensService tokensService) {
         this.tokensService = tokensService;
     }

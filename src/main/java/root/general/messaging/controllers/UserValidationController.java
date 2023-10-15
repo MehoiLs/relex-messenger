@@ -24,7 +24,6 @@ public class UserValidationController {
 
     private final UserService userService;
 
-    @Autowired
     public UserValidationController(UserService userService) {
         this.userService = userService;
     }
