@@ -13,7 +13,7 @@ public final class WebSecurityUtils {
     };
 
     public static final String[] publicMappingsGET = {
-            "/register/**", "/login/**", "/login/gui", "/error",
+            "/register/**", "/login/**", "/login/gui", "/error", "/home",
             "/js/**", "/fonts/**", "/images/**", "/favicon.ico", "/css/**"
     };
 

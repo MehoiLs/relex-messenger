@@ -69,7 +69,7 @@ public class ChatDataController {
             User senderUser = userService.getUserByUsername(username);
             return new ResponseEntity<>(
                     new DefaultMessageDTO(String.valueOf(
-                            chatMessageService.countNewMessagesFromUser(user.getId(), senderUser.getId()))),
+                            chatMessageService.countNewMessagesFromUser(senderUser.getId(), user.getId()))),
                     HttpStatus.OK);
         } catch (UserNotFoundException userNotFoundException) {
             return new ResponseEntity<>(
@@ -94,7 +94,7 @@ public class ChatDataController {
         try {
             User senderUser = userService.getUserByUsername(username);
             return new ResponseEntity<>(
-                    chatMessageService.getAllNewMessagesFromUser(user.getId(), senderUser.getId()),
+                    chatMessageService.getAllNewMessagesFromUser(senderUser.getId(), user.getId()),
                     HttpStatus.OK);
         } catch (UserNotFoundException userNotFoundException) {
             return new ResponseEntity<>(
