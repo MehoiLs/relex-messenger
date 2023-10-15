@@ -504,3 +504,4 @@ Authorization: Bearer <token>
 
 
 # Демонстрационное видео
+https://drive.google.com/file/d/1eUTVXfElo1ZU6Wxo-lUNlmf23S5kg6YZ/view?usp=sharing
