@@ -1,7 +1,6 @@
 package root.general.community.services;
 
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.general.community.data.FriendRequest;
 import root.general.community.data.dto.FriendRequestDTO;

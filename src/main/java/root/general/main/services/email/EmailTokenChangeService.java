@@ -1,6 +1,5 @@
 package root.general.main.services.email;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;

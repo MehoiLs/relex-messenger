@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +14,6 @@ import root.general.main.data.dto.DefaultMessageDTO;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
-import root.general.messaging.data.ChatMessage;
 import root.general.messaging.data.dto.ChatMessageDTO;
 import root.general.messaging.services.ChatMessageService;
 

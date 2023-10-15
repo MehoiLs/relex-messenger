@@ -2,17 +2,14 @@ package root.general.security.registration.services;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
 import root.general.main.exceptions.DatabaseRecordNotFound;
-import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 import root.general.main.utils.InfoMessagesUtils;
 import root.general.security.general.exceptions.RegistrationException;
 
-import java.util.stream.StreamSupport;
 
 @Slf4j
 @Service

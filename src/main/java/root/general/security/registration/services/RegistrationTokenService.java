@@ -1,7 +1,6 @@
 package root.general.security.registration.services;
 
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.general.main.data.User;
 import root.general.main.exceptions.DatabaseRecordNotFound;

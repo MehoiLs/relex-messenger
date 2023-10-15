@@ -2,7 +2,6 @@ package root.general.security.general.services;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.database.DatabaseManager;
 import root.general.main.data.User;

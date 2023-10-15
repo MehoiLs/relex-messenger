@@ -3,7 +3,6 @@ package root.general.main.services.tokens;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.general.main.data.TokenChangeEmail;
 import root.general.main.data.User;

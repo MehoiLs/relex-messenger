@@ -1,7 +1,6 @@
 package root.general.security.general.components;
 
 import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -27,13 +26,9 @@ import root.general.security.general.exceptions.TokenNotFoundException;
 import root.general.security.general.services.InvalidatedJwtTokensService;
 
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

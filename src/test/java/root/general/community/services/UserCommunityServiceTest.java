@@ -6,15 +6,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import root.general.TestUtils;
-import root.general.community.data.FriendRequest;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
-import root.general.messaging.services.ChatMessageService;
 
-import java.io.NotActiveException;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.doAnswer;
