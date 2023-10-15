@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import root.general.main.data.dto.DefaultMessageDTO;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.security.general.data.dto.CredentialsDTO;
+import root.general.security.general.data.dto.LoginDTO;
 import root.general.security.general.exceptions.UserIsNotEnabledException;
 import root.general.security.general.services.AuthenticationService;
 
@@ -44,14 +45,18 @@ public class LoginController {
             content = @Content(mediaType = "application/json")
     )
     @PostMapping("/login")
-    public ResponseEntity<DefaultMessageDTO> login(@RequestBody CredentialsDTO credentials) {
+    public ResponseEntity<?> login(@RequestBody CredentialsDTO credentials) {
         try {
-            String authResult = authenticationService.authenticateUserByCredentials(credentials);
-            return new ResponseEntity<>(new DefaultMessageDTO(authResult), HttpStatus.OK);
+            LoginDTO authResult = authenticationService.authenticateUserByCredentials(credentials);
+            return new ResponseEntity<>(authResult, HttpStatus.OK);
         } catch (BadCredentialsException | UserNotFoundException e) {
-            return new ResponseEntity<>(new DefaultMessageDTO("Incorrect login or password."), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Incorrect login or password."),
+                    HttpStatus.BAD_REQUEST);
         } catch (UserIsNotEnabledException userIsNotEnabledException) {
-            return new ResponseEntity<>(new DefaultMessageDTO("Your account is not enabled."), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Your account is not enabled."),
+                    HttpStatus.UNAUTHORIZED);
         }
     }
 }

@@ -153,7 +153,7 @@ public class JwtAuthenticationProvider {
         return cookie;
     }
 
-    private void deactivateUserSessionByToken(String token) {
+    public void deactivateUserSessionByToken(String token) {
         try {
             DecodedJWT decoded = JWT.decode(token);
             User user = userService.getUserById(Long.parseLong(decoded.getIssuer()));

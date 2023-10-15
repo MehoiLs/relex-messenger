@@ -13,12 +13,12 @@ public final class WebSecurityUtils {
     };
 
     public static final String[] publicMappingsGET = {
-            "/register/**", "/login/**", "/login/chat", "/error",
+            "/register/**", "/login/**", "/login/gui", "/error",
             "/js/**", "/fonts/**", "/images/**", "/favicon.ico", "/css/**"
     };
 
     public static final String[] publicMappingsPOST = {
-            "/register/**", "/login/**", "/login/chat"
+            "/register/**", "/login/**", "/login/gui"
     };
 
     private static final String[] ignoreTokenRequestsList = {

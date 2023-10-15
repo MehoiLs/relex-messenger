@@ -8,6 +8,8 @@ import root.general.community.data.dto.UserProfileDTO;
 import root.general.main.data.User;
 import root.general.main.data.dto.userprofile.UserProfileEditDTO;
 import root.general.main.data.dto.userprofile.UserProfileFullDTO;
+import root.general.messaging.data.ChatMessage;
+import root.general.messaging.data.dto.ChatMessageDTO;
 
 import java.util.stream.Collectors;
 
@@ -67,6 +69,13 @@ public final class MapperUtils {
         return new FriendRequestDTO(
                 friendRequest.getSender().getUsername(),
                 AppUtils.formatLocalDateTime(friendRequest.getSentAt())
+        );
+    }
+
+    public static ChatMessageDTO mapChatMessageToDto(@NonNull ChatMessage chatMessage) {
+        return new ChatMessageDTO(
+                chatMessage.getSenderName(),
+                chatMessage.getContent()
         );
     }
 

@@ -287,16 +287,11 @@ public class UserProfileController {
             content = @Content(mediaType = "application/json")
     )
     @PostMapping("/edit/privacy")
-    public ResponseEntity<DefaultMessageDTO> editPrivacySettings(@AuthenticationPrincipal User user,
+    public ResponseEntity<UserProfilePrivacyDTO> editPrivacySettings(@AuthenticationPrincipal User user,
                                                  @RequestBody UserProfilePrivacyDTO userProfilePrivacy) {
         userProfileService.setFriendsListHidden(user, userProfilePrivacy.isFriendsListHidden());
         userProfileService.setMessagesFriendsOnly(user, userProfilePrivacy.isFriendsOnlyMessages());
-        String output = "Has successfully set your privacy settings to:\n" +
-                "\tFriends list is hidden: " + user.isFriendsListHidden() +
-                "\tMessages are friends only: " + user.isAccessibilityFriendsOnly() + ".";
-        return new ResponseEntity<>(
-                new DefaultMessageDTO(output),
-                HttpStatus.OK);
+        return new ResponseEntity<>(userProfilePrivacy, HttpStatus.OK);
     }
 
     @Operation(

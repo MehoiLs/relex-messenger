@@ -16,6 +16,7 @@ import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 import root.general.messaging.data.ChatMessage;
+import root.general.messaging.data.dto.ChatMessageDTO;
 import root.general.messaging.services.ChatMessageService;
 
 import java.util.List;
@@ -45,7 +46,7 @@ public class ChatDataController {
             content = @Content(mediaType = "application/json")
     )
     @GetMapping("/messages/unread")
-    public ResponseEntity<List<ChatMessage>> getAllUnreadMessages (@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<ChatMessageDTO>> getAllUnreadMessages (@AuthenticationPrincipal User user) {
         return new ResponseEntity<>(
                 chatMessageService.getAllNewMessages(user.getId()),
                 HttpStatus.OK);
@@ -61,17 +62,18 @@ public class ChatDataController {
             description = "Информация о количестве непрочитанных сообщениях от конкретного пользователя получена успешно.",
             content = @Content(mediaType = "application/json")
     )
-    @GetMapping("/messages/{recipient}/count")
-    public ResponseEntity<?> countNewMessages(@PathVariable String recipient,
+    @GetMapping("/messages/user/{username}/unread/count")
+    public ResponseEntity<?> countNewMessages(@PathVariable String username,
                                               @AuthenticationPrincipal User user) {
         try {
-            User recipientUser = userService.getUserByUsername(recipient);
+            User senderUser = userService.getUserByUsername(username);
             return new ResponseEntity<>(
-                    chatMessageService.countNewMessagesFromUser(user.getId(), recipientUser.getId()),
+                    new DefaultMessageDTO(String.valueOf(
+                            chatMessageService.countNewMessagesFromUser(user.getId(), senderUser.getId()))),
                     HttpStatus.OK);
         } catch (UserNotFoundException userNotFoundException) {
             return new ResponseEntity<>(
-                    new DefaultMessageDTO("Cannot find user: " + recipient),
+                    new DefaultMessageDTO("Cannot find user: " + username),
                     HttpStatus.OK);
         }
     }
@@ -86,17 +88,17 @@ public class ChatDataController {
             description = "Информация о всех непрочитанных сообщениях от конкретного пользователя получена успешно.",
             content = @Content(mediaType = "application/json")
     )
-    @GetMapping("/messages/{recipient}/unread")
-    public ResponseEntity<?> getAllNewMessagesFromUser (@PathVariable String recipient,
+    @GetMapping("/messages/user/{username}/unread")
+    public ResponseEntity<?> getAllNewMessagesFromUser (@PathVariable String username,
                                                         @AuthenticationPrincipal User user) {
         try {
-            User recipientUser = userService.getUserByUsername(recipient);
+            User senderUser = userService.getUserByUsername(username);
             return new ResponseEntity<>(
-                    chatMessageService.getAllNewMessagesFromUser(user.getId(), recipientUser.getId()),
+                    chatMessageService.getAllNewMessagesFromUser(user.getId(), senderUser.getId()),
                     HttpStatus.OK);
         } catch (UserNotFoundException userNotFoundException) {
             return new ResponseEntity<>(
-                    new DefaultMessageDTO("Cannot find user: " + recipient),
+                    new DefaultMessageDTO("Cannot find user: " + username),
                     HttpStatus.BAD_REQUEST);
         }
     }
@@ -110,12 +112,12 @@ public class ChatDataController {
             description = "Информация о всех сообщениях от конкретного пользователя получена успешно.",
             content = @Content(mediaType = "application/octet-stream")
     )
-    @GetMapping("/messages/{recipient}/all/download")
-    public ResponseEntity<?> getChatMessageHistory (@PathVariable String recipient,
+    @GetMapping("/messages/user/{username}/all/download")
+    public ResponseEntity<?> getChatMessageHistory (@PathVariable String username,
                                                     @AuthenticationPrincipal User user) {
         try {
-            User recipientUser = userService.getUserByUsername(recipient);
-            return chatMessageService.getChatMessagesHistoryToDownload(user.getId(), recipientUser.getId());
+            User senderUser = userService.getUserByUsername(username);
+            return chatMessageService.getChatMessagesHistoryToDownload(user.getId(), senderUser.getId());
         } catch (Exception e) {
             return new ResponseEntity<>(
                     new DefaultMessageDTO(e.getMessage()),

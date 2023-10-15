@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import root.general.main.data.dto.DefaultMessageDTO;
 
 import java.io.IOException;
 
@@ -27,7 +28,7 @@ public class UserAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
-        MAPPER.writeValue(response.getWriter(), "Unauthorized Path");
+        MAPPER.writeValue(response.getWriter(), new DefaultMessageDTO("Unauthorized Path"));
         response.getWriter().flush();
     }
 }

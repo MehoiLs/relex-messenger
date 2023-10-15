@@ -19,12 +19,15 @@ public final class InfoMessagesUtils {
                     "login again to receive a new one.";
 
     public static final String userRestoredAccountMsg =
-            "[YOU HAVE RESTORED YOUR ACCOUNT]";
+            "[YOU HAVE RESTORED YOUR ACCOUNT] ";
 
     public static final String profileEmailChangeConfirmationLetterSentMsg =
             "A confirmation letter will be sent to the email shortly. " +
             "To complete e-mail change, you will have to set your new e-mail via the sent link. However, " +
             "if you haven't received the letter, try sending the request again.";
+
+    public static final String profileEmailChangeCurrentEmailRequestMsg =
+            "New email is the same as current. No changes were made.";
 
     public static final String invalidImageFormatMsg =
             "Invalid file type. Only JPEG and PNG images are allowed.";

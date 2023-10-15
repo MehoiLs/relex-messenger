@@ -78,6 +78,9 @@ public class UserProfileService {
         if(!ValidationUtils.isValidEmail(email))
             throw new UserProfileEditException("Couldn't change profile info. Invalid e-mail.");
 
+        if(user.getEmail().equals(email))
+            return InfoMessagesUtils.profileEmailChangeCurrentEmailRequestMsg;
+
         emailTokenChangeService.sendConfirmationEmail(user, email);
         log.info("[USER PROFILE SERVICE] User " + user.getLogin() + " has requested an e-mail change to \""
                 + email + "\".");

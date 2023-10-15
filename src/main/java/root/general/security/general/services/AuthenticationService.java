@@ -10,6 +10,7 @@ import root.general.main.services.user.UserService;
 import root.general.main.utils.InfoMessagesUtils;
 import root.general.security.general.components.JwtAuthenticationProvider;
 import root.general.security.general.data.dto.CredentialsDTO;
+import root.general.security.general.data.dto.LoginDTO;
 import root.general.security.general.exceptions.UserIsNotEnabledException;
 
 
@@ -27,7 +28,7 @@ public class AuthenticationService {
         this.userService = userService;
     }
 
-    public String authenticateUserByCredentials(CredentialsDTO credentials)
+    public LoginDTO authenticateUserByCredentials(CredentialsDTO credentials)
             throws BadCredentialsException, UserIsNotEnabledException, UserNotFoundException {
         User user = jwtAuthenticationProvider.getUserByCredentials(credentials);
 
@@ -37,17 +38,19 @@ public class AuthenticationService {
         String loginSuccessMsg = "";
         if (user.isLocked()) {
             userService.restoreUserAccount(user);
-            loginSuccessMsg += InfoMessagesUtils.userRestoredAccountMsg + "\n";
+            loginSuccessMsg += InfoMessagesUtils.userRestoredAccountMsg;
             log.info("[AUTH SERVICE] User \"" + user.getLogin() + "\" has restored their account.");
         }
         if (!user.isHasActiveSession()) {
             userService.setActiveSession(user, true);
             userService.setLastOnline(user);
             String token = jwtAuthenticationProvider.createToken(user);
-            loginSuccessMsg += "You have successfully logged in.\n" + "\nYour JWT token:\n" + token + "\n\n" +
-                    InfoMessagesUtils.jwtTokenAuthenticationReminderMsg;
-            return loginSuccessMsg;
+            loginSuccessMsg += "You have successfully logged in. " + InfoMessagesUtils.jwtTokenAuthenticationReminderMsg;
+            return new LoginDTO(loginSuccessMsg, token);
         }
-        return "You have already received a JWT token.\n\n" + InfoMessagesUtils.jwtTokenAuthenticationReminderMsg;
+        return new LoginDTO(
+                "You have already received a JWT token. " + InfoMessagesUtils.jwtTokenAuthenticationReminderMsg,
+                "-"
+        );
     }
 }

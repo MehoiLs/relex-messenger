@@ -7,14 +7,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import root.general.main.utils.CryptoUtils;
+import root.general.main.utils.MapperUtils;
 import root.general.messaging.data.ChatMessage;
 import root.general.messaging.data.ChatNotification;
+import root.general.messaging.data.dto.ChatMessageDTO;
 import root.general.messaging.data.enums.MessageStatus;
 import root.general.messaging.exceptions.ChatServiceException;
 import root.general.messaging.repositories.ChatMessageRepository;
 import root.general.messaging.utils.MessagesUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -59,18 +62,26 @@ public class ChatMessageService {
                 senderId, recipientId, MessageStatus.DELIVERED);
     }
 
-    public List<ChatMessage> getAllNewMessages(Long userId) {
+    public List<ChatMessageDTO> getAllNewMessages(Long userId) {
+        List<ChatMessageDTO> dtoList = new ArrayList<>();
         List<ChatMessage> chatMessages =
                 chatMessageRepository.findByRecipientIdAndStatus(userId, MessageStatus.DELIVERED);
-        chatMessages.forEach(this::updateMessageStatusToRead);
-        return chatMessages;
+        chatMessages.forEach(msg -> {
+            updateMessageStatusToRead(msg);
+            dtoList.add(MapperUtils.mapChatMessageToDto(msg));
+        });
+        return dtoList;
     }
 
-    public List<ChatMessage> getAllNewMessagesFromUser(Long senderId, Long recipientId) {
+    public List<ChatMessageDTO> getAllNewMessagesFromUser(Long senderId, Long recipientId) {
+        List<ChatMessageDTO> dtoList = new ArrayList<>();
         List<ChatMessage> chatMessages = chatMessageRepository.findBySenderIdAndRecipientIdAndStatus(
                 senderId, recipientId, MessageStatus.DELIVERED);
-        chatMessages.forEach(this::updateMessageStatusToRead);
-        return chatMessages;
+        chatMessages.forEach(msg -> {
+            updateMessageStatusToRead(msg);
+            dtoList.add(MapperUtils.mapChatMessageToDto(msg));
+        });
+        return dtoList;
     }
 
     public ResponseEntity<byte[]> getChatMessagesHistoryToDownload(Long senderId, Long recipientId) throws ChatServiceException {

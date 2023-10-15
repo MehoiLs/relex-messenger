@@ -44,9 +44,9 @@ public class ChatPageController {
             description = "Страница для логина успешно получена.",
             content = @Content(mediaType = "text/html")
     )
-    @GetMapping("/login/chat")
+    @GetMapping("/login/gui")
     public String getLoginChatPage() {
-        return "chat_login";
+        return "gui_login";
     }
 
     @Operation(
@@ -60,7 +60,7 @@ public class ChatPageController {
                     "некорректные данные, вернётся страница с ошибкой \"error\".",
             content = @Content(mediaType = "text/html")
     )
-    @PostMapping("/login/chat")
+    @PostMapping("/login/gui")
     public String doLoginChat(@RequestParam String token, HttpServletResponse response, Model model) {
         try {
             Authentication auth = authenticationProvider.validateToken(token);
