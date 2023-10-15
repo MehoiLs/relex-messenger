@@ -8,6 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import root.general.main.data.dto.DefaultMessageDTO;
 import root.general.main.data.User;
 import root.general.security.general.services.AdminService;
 
@@ -24,15 +25,15 @@ public class AdminController {
     }
 
     @PostMapping("/database/cleanup")
-    public ResponseEntity<String> forceCleanupDatabase(@AuthenticationPrincipal User admin) {
+    public ResponseEntity<DefaultMessageDTO> forceCleanupDatabase(@AuthenticationPrincipal User admin) {
         adminService.forceCleanupDatabase(admin);
-        return new ResponseEntity<>("Forced cleanup database.", HttpStatus.OK);
+        return new ResponseEntity<>(new DefaultMessageDTO("Forced cleanup database."), HttpStatus.OK);
     }
 
     @PostMapping("/users/logout/all")
-    public ResponseEntity<String> forceLogoutAllUsers(@AuthenticationPrincipal User admin) {
+    public ResponseEntity<DefaultMessageDTO> forceLogoutAllUsers(@AuthenticationPrincipal User admin) {
         adminService.forceLogoutAllUsers(admin);
-        return new ResponseEntity<>("Forced logout all users.", HttpStatus.OK);
+        return new ResponseEntity<>(new DefaultMessageDTO("Forced logout all users."), HttpStatus.OK);
     }
 
 }

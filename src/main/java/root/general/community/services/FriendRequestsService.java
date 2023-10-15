@@ -4,17 +4,15 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import root.general.community.data.FriendRequest;
+import root.general.community.data.dto.FriendRequestDTO;
 import root.general.community.exception.FriendRequestException;
 import root.general.community.repositories.FriendRequestsRepository;
-import root.general.community.utils.RequestsUtils;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
+import root.general.main.utils.MapperUtils;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -40,9 +38,12 @@ public class FriendRequestsService {
         return new HashSet<>(friendRequestsRepository.findByRecipient(user));
     }
 
-    public String getAllFriendRequestsForUserAsString (User user) {
-        Set<FriendRequest> requestsSet = new HashSet<>(friendRequestsRepository.findByRecipient(user));
-        return RequestsUtils.convertAllFriendRequestsToString(requestsSet);
+    public List<FriendRequestDTO> getAllFriendRequestsForUserAsDtoList(User user) {
+        List<FriendRequestDTO> dtoList = new ArrayList<>();
+        friendRequestsRepository.findByRecipient(user).forEach(request ->
+                dtoList.add(MapperUtils.mapFriendRequestToDto(request))
+        );
+        return dtoList;
     }
 
     public void sendFriendRequest(String username, User requester) throws UserNotFoundException, FriendRequestException {

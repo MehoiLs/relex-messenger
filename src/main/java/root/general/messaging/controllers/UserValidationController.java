@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import root.general.main.data.User;
+import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
 
 import java.util.Collections;
@@ -46,11 +47,13 @@ public class UserValidationController {
             @PathVariable Long issuerId) {
 
         boolean userIsAccessible = false;
-        if(userService.userExistsById(userIdToCheck)) {
-            userIsAccessible = true;
-            if (userService.getUserById(userIdToCheck).isAccessibilityFriendsOnly())
-                userIsAccessible = userService.userIsFriendsWith(userIdToCheck, issuerId);
-        }
+        try {
+            if (userService.userExistsById(userIdToCheck)) {
+                userIsAccessible = true;
+                if (userService.getUserById(userIdToCheck).isAccessibilityFriendsOnly())
+                    userIsAccessible = userService.userIsFriendsWith(userIdToCheck, issuerId);
+            }
+        } catch (UserNotFoundException ignored) {}
 
         Map<String, Boolean> response = Collections.singletonMap("accessible", userIsAccessible);
         return ResponseEntity.ok(response);
@@ -68,10 +71,10 @@ public class UserValidationController {
     )
     @GetMapping("/public/validation/users/{username}")
     public ResponseEntity<Long> getUserIdByUsername(@PathVariable String username) {
-        User user = userService.getUserByUsername(username);
-        if (user != null) {
+        try {
+            User user = userService.getUserByUsername(username);
             return ResponseEntity.ok(user.getId());
-        } else {
+        } catch (UserNotFoundException userNotFoundException) {
             return ResponseEntity.notFound().build();
         }
     }

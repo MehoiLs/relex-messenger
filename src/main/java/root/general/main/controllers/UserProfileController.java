@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import root.general.main.data.dto.DefaultMessageDTO;
 import root.general.main.data.User;
 import root.general.main.data.dto.userprofile.*;
 import root.general.main.exceptions.DatabaseRecordNotFound;
@@ -88,7 +89,9 @@ public class UserProfileController {
             );
             return new ResponseEntity<>(changedProfile, HttpStatus.OK);
         } catch (UserProfileEditException profileEditException) {
-            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(profileEditException.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -100,18 +103,24 @@ public class UserProfileController {
             responseCode = "200",
             description = "Запрос на изменение почты пользователя был успешно отправлен. " +
                     "Если же были предоставлены недопустимые данные, будет возвращен код состояния `BAD_REQUEST`",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/edit/email")
-    public ResponseEntity<String> requestEditEmail(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> requestEditEmail(@AuthenticationPrincipal User user,
                                                    @RequestBody UserProfileEmailDTO emailInfoDTO) {
         try {
             String msg = userProfileService.requestChangeUserEmail(user, emailInfoDTO.getEmail());
-            return new ResponseEntity<>(msg, HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(msg),
+                    HttpStatus.OK);
         } catch (UserProfileEditException | DatabaseRecordNotFound profileEditException) {
-            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(profileEditException.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         } catch (NullPointerException nullPointerException) {
-            return new ResponseEntity<>("Failed processing the provided data.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Failed processing the provided data."),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -138,16 +147,20 @@ public class UserProfileController {
             description = "Почта пользователя была успешно измененена на новую. " +
                     "Если же токен был неверен, или был аутентифицирован иной пользователь, " +
                     "будет возвращен код состояния `NOT_FOUND`",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @GetMapping("/edit/email/confirm/{token}")
-    public ResponseEntity<?> getUserProfileEditInfo(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> getUserProfileEditInfo(@AuthenticationPrincipal User user,
                                                     @PathVariable String token) {
         try {
             if (tokenChangeEmailService.confirmTokenForUser(token, user))
-                return new ResponseEntity<>("You have successfully changed your e-mail!", HttpStatus.OK);
+                return new ResponseEntity<>(
+                        new DefaultMessageDTO("You have successfully changed your e-mail!"),
+                        HttpStatus.OK);
         } catch (DatabaseRecordNotFound ignored) {}
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(
+                new DefaultMessageDTO("Not found."),
+                HttpStatus.NOT_FOUND);
     }
 
     @Operation(
@@ -160,18 +173,24 @@ public class UserProfileController {
                     "Если же предоставленный файл аватарки неверного формата (не: \".jpeg, .jpg, .png\"), " +
                     "или же произошла непредвиденная ошибка во время обработки предоставленного файла, " +
                     "будет возвращен код состояния `BAD_REQUEST`",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/edit/pfp")
-    public ResponseEntity<String> uploadProfilePicture(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> uploadProfilePicture(@AuthenticationPrincipal User user,
                                                        @RequestParam("image") MultipartFile pfp) {
         try {
             String msg = userProfileService.uploadUserProfilePicture(user, pfp);
-            return new ResponseEntity<>(msg, HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(msg),
+                    HttpStatus.OK);
         } catch (ProfilePictureUploadException pictureUploadException) {
-            return new ResponseEntity<>(pictureUploadException.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(pictureUploadException.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         } catch (NullPointerException nullPointerException) {
-            return new ResponseEntity<>("Failed processing the provided data.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Failed processing the provided data."),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -185,7 +204,7 @@ public class UserProfileController {
             content = @Content(mediaType = "image/jpg")
     )
     @GetMapping({"/pfp", "/edit/pfp"})
-    public ResponseEntity<?> getProfilePicture(@AuthenticationPrincipal User user) {
+    public ResponseEntity<InputStreamResource> getProfilePicture(@AuthenticationPrincipal User user) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         InputStreamResource inputStream = userProfileService.getUserProfilePictureAsInputStreamResource(user);
@@ -205,8 +224,9 @@ public class UserProfileController {
     @GetMapping("/edit/password")
     public ResponseEntity<UserProfilePasswordDTO> getEditUserPasswordDto (@AuthenticationPrincipal User user,
                                                  @RequestBody UserProfilePasswordDTO userProfilePassword) {
-        return new ResponseEntity<>(new UserProfilePasswordDTO(
-                "your old password", "your new password"), HttpStatus.OK);
+        return new ResponseEntity<>(
+                new UserProfilePasswordDTO("your old password", "your new password"),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -219,18 +239,24 @@ public class UserProfileController {
                     "в противном случае, если предоставленный старый пароль неверный, " +
                     "или же предоставленные данные оказались некорректными (пустые), " +
                     "будет возвращен код состояния `BAD_REQUEST`.",
-            content = @Content(mediaType = "plain/text")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/edit/password")
-    public ResponseEntity<String> editUserPassword(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> editUserPassword(@AuthenticationPrincipal User user,
                                                    @RequestBody UserProfilePasswordDTO userProfilePassword) {
         try {
             String msg = userProfileService.changeUserPassword(user, userProfilePassword);
-            return new ResponseEntity<>(msg, HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(msg),
+                    HttpStatus.OK);
         } catch (UserProfileEditException profileEditException) {
-            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(profileEditException.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         } catch (NullPointerException nullPointerException) {
-            return new ResponseEntity<>("Failed processing the provided data.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Failed processing the provided data."),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -245,7 +271,9 @@ public class UserProfileController {
     )
     @GetMapping("/edit/privacy")
     public ResponseEntity<UserProfilePrivacyDTO> getEditPrivacySettings(@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(new UserProfilePrivacyDTO(), HttpStatus.OK);
+        return new ResponseEntity<>(
+                new UserProfilePrivacyDTO(),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -256,17 +284,19 @@ public class UserProfileController {
             responseCode = "200",
             description = "Настройки приватности были успешно изменены. " +
                     "Пользователи возвращены обновлённые настройки приватности.",
-            content = @Content(mediaType = "plain/text")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/edit/privacy")
-    public ResponseEntity<String> editPrivacySettings(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> editPrivacySettings(@AuthenticationPrincipal User user,
                                                  @RequestBody UserProfilePrivacyDTO userProfilePrivacy) {
         userProfileService.setFriendsListHidden(user, userProfilePrivacy.isFriendsListHidden());
         userProfileService.setMessagesFriendsOnly(user, userProfilePrivacy.isFriendsOnlyMessages());
         String output = "Has successfully set your privacy settings to:\n" +
                 "\tFriends list is hidden: " + user.isFriendsListHidden() +
                 "\tMessages are friends only: " + user.isAccessibilityFriendsOnly() + ".";
-        return new ResponseEntity<>(output, HttpStatus.OK);
+        return new ResponseEntity<>(
+                new DefaultMessageDTO(output),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -278,17 +308,23 @@ public class UserProfileController {
             description = "Пользователь был успешно заблокирован (locked), " +
                     "и приготовлен к удалению. Если во время обработки запроса возникнет ошибка, " +
                     "будет возвращен код состояния `BAD_REQUEST`.",
-            content = @Content(mediaType = "plain/text")
+            content = @Content(mediaType = "application/json")
     )
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteUser(@AuthenticationPrincipal User user, HttpServletRequest request) {
+    public ResponseEntity<DefaultMessageDTO> deleteUser(@AuthenticationPrincipal User user, HttpServletRequest request) {
         try {
             String msg = userProfileService.prepareUserForDelete(user, request);
-            return new ResponseEntity<>(msg, HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(msg),
+                    HttpStatus.OK);
         } catch (UserProfileEditException profileEditException) {
-            return new ResponseEntity<>(profileEditException.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(profileEditException.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         } catch (NullPointerException nullPointerException) {
-            return new ResponseEntity<>("Failed processing the provided data.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Failed processing the provided data."),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 }

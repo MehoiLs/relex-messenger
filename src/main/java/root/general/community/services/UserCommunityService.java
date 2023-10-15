@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import root.general.community.data.dto.CommunityInfoDTO;
 import root.general.community.data.dto.UserProfileDTO;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
@@ -34,16 +35,11 @@ public class UserCommunityService {
     }
 
     @Transactional
-    public String getGeneralInfoAsString(User user) {
-        StringBuilder output = new StringBuilder();
-        output
-                .append("Currently you have...\n\t")
-                .append(friendRequestsService.getAllFriendRequestsForUser(user).size())
-                .append(" friends requests.\n\t")
-                .append(chatMessageService.countAllNewMessages(user.getId()))
-                .append(" new messages.\n\t");
-
-        return output.toString();
+    public CommunityInfoDTO getGeneralInfoAsDto(User user) {
+        return new CommunityInfoDTO(
+                friendRequestsService.getAllFriendRequestsForUser(user).size(),
+                chatMessageService.countAllNewMessages(user.getId())
+        );
     }
 
     public UserProfileDTO getUserProfileInfo(String username) throws UserNotFoundException {

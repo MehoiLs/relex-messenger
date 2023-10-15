@@ -11,10 +11,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import root.general.main.data.dto.DefaultMessageDTO;
 import root.general.main.data.User;
 import root.general.main.exceptions.UserNotFoundException;
 import root.general.main.services.user.UserService;
+import root.general.messaging.data.ChatMessage;
 import root.general.messaging.services.ChatMessageService;
+
+import java.util.List;
 
 @RestController
 @Tag(
@@ -38,11 +42,13 @@ public class ChatDataController {
     @ApiResponse(
             responseCode = "200",
             description = "Информация о всех непрочитанных сообщениях получена успешно.",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @GetMapping("/messages/unread")
-    public ResponseEntity<String> getAllUnreadMessages (@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(chatMessageService.getAllNewMessagesAsString(user.getId()), HttpStatus.OK);
+    public ResponseEntity<List<ChatMessage>> getAllUnreadMessages (@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(
+                chatMessageService.getAllNewMessages(user.getId()),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -53,17 +59,20 @@ public class ChatDataController {
     @ApiResponse(
             responseCode = "200",
             description = "Информация о количестве непрочитанных сообщениях от конкретного пользователя получена успешно.",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @GetMapping("/messages/{recipient}/count")
     public ResponseEntity<?> countNewMessages(@PathVariable String recipient,
                                               @AuthenticationPrincipal User user) {
         try {
             User recipientUser = userService.getUserByUsername(recipient);
-            return new ResponseEntity<>(chatMessageService.countNewMessagesFromUser(user.getId(), recipientUser.getId()),
+            return new ResponseEntity<>(
+                    chatMessageService.countNewMessagesFromUser(user.getId(), recipientUser.getId()),
                     HttpStatus.OK);
         } catch (UserNotFoundException userNotFoundException) {
-            return new ResponseEntity<>("Cannot find user: " + recipient, HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Cannot find user: " + recipient),
+                    HttpStatus.OK);
         }
     }
 
@@ -75,17 +84,20 @@ public class ChatDataController {
     @ApiResponse(
             responseCode = "200",
             description = "Информация о всех непрочитанных сообщениях от конкретного пользователя получена успешно.",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @GetMapping("/messages/{recipient}/unread")
-    public ResponseEntity<String> getAllNewMessagesFromUser (@PathVariable String recipient,
-                                                             @AuthenticationPrincipal User user) {
+    public ResponseEntity<?> getAllNewMessagesFromUser (@PathVariable String recipient,
+                                                        @AuthenticationPrincipal User user) {
         try {
             User recipientUser = userService.getUserByUsername(recipient);
-            return new ResponseEntity<>(chatMessageService.getAllNewMessagesFromUserAsString(user.getId(), recipientUser.getId()),
+            return new ResponseEntity<>(
+                    chatMessageService.getAllNewMessagesFromUser(user.getId(), recipientUser.getId()),
                     HttpStatus.OK);
         } catch (UserNotFoundException userNotFoundException) {
-            return new ResponseEntity<>("Cannot find user: " + recipient, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Cannot find user: " + recipient),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -96,16 +108,18 @@ public class ChatDataController {
     @ApiResponse(
             responseCode = "200",
             description = "Информация о всех сообщениях от конкретного пользователя получена успешно.",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/octet-stream")
     )
-    @GetMapping("/messages/{recipient}/all")
+    @GetMapping("/messages/{recipient}/all/download")
     public ResponseEntity<?> getChatMessageHistory (@PathVariable String recipient,
                                                     @AuthenticationPrincipal User user) {
         try {
             User recipientUser = userService.getUserByUsername(recipient);
             return chatMessageService.getChatMessagesHistoryToDownload(user.getId(), recipientUser.getId());
         } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 

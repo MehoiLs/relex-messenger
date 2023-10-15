@@ -2,6 +2,8 @@ package root.general.main.utils;
 
 import lombok.NonNull;
 import lombok.experimental.UtilityClass;
+import root.general.community.data.FriendRequest;
+import root.general.community.data.dto.FriendRequestDTO;
 import root.general.community.data.dto.UserProfileDTO;
 import root.general.main.data.User;
 import root.general.main.data.dto.userprofile.UserProfileEditDTO;
@@ -58,6 +60,13 @@ public final class MapperUtils {
                 user.getLastName(),
                 user.getEmail(),
                 user.getRole().name()
+        );
+    }
+
+    public static FriendRequestDTO mapFriendRequestToDto(@NonNull FriendRequest friendRequest) {
+        return new FriendRequestDTO(
+                friendRequest.getSender().getUsername(),
+                AppUtils.formatLocalDateTime(friendRequest.getSentAt())
         );
     }
 

@@ -9,11 +9,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import root.general.community.data.dto.CommunityInfoDTO;
 import root.general.community.exception.FriendRequestException;
 import root.general.community.services.FriendRequestsService;
 import root.general.community.services.UserCommunityService;
 import root.general.main.data.User;
+import root.general.main.data.dto.DefaultMessageDTO;
 import root.general.main.exceptions.UserNotFoundException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/community")
@@ -38,10 +42,12 @@ public class CommunityController {
     @ApiResponse(
             responseCode = "200",
             description = "Информация о сообществе получена успешно.",
-            content = @Content(mediaType = "text/plain"))
+            content = @Content(mediaType = "application/json"))
     @GetMapping
-    public ResponseEntity<String> getGeneralInfo(@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(userCommunityService.getGeneralInfoAsString(user), HttpStatus.OK);
+    public ResponseEntity<CommunityInfoDTO> getGeneralInfo(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(
+                userCommunityService.getGeneralInfoAsDto(user),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -57,9 +63,13 @@ public class CommunityController {
     @GetMapping("/users/{username}")
     public ResponseEntity<?> getUserProfileInfo(@PathVariable String username) {
         try {
-            return new ResponseEntity<>(userCommunityService.getUserProfileInfo(username), HttpStatus.OK);
+            return new ResponseEntity<>(
+                    userCommunityService.getUserProfileInfo(username),
+                    HttpStatus.OK);
         } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -76,9 +86,13 @@ public class CommunityController {
     @GetMapping("/users/{username}/friends")
     public ResponseEntity<?> getUserFriends(@PathVariable String username) {
         try {
-            return new ResponseEntity<>(userCommunityService.getUserFriendsList(username), HttpStatus.OK);
+            return new ResponseEntity<>(
+                    userCommunityService.getUserFriendsList(username),
+                    HttpStatus.OK);
         } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -90,18 +104,23 @@ public class CommunityController {
             responseCode = "200",
             description = "Запрос на добавление в друзья успешно отправлен. " +
                     "Если пользователь не найден, будет возвращен код состояния `BAD_REQUEST`",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/users/{username}/add")
-    public ResponseEntity<?> addUserAsFriend(@PathVariable String username,
+    public ResponseEntity<DefaultMessageDTO> addUserAsFriend(@PathVariable String username,
                                              @AuthenticationPrincipal User requesterUser) {
         try {
             friendRequestsService.sendFriendRequest(username, requesterUser);
-            return new ResponseEntity<>("Successfully sent the request to: " + username + ".", HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Successfully sent the request to: " + username + "."), HttpStatus.OK);
         } catch (FriendRequestException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.OK);
         } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -115,8 +134,10 @@ public class CommunityController {
             content = @Content(mediaType = "application/json")
     )
     @GetMapping("/friends")
-    public ResponseEntity<?> getAllFriends(@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(userCommunityService.getAllFriends(user), HttpStatus.OK);
+    public ResponseEntity<List<String>> getAllFriends(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(
+                userCommunityService.getAllFriends(user),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -127,16 +148,20 @@ public class CommunityController {
             responseCode = "200",
             description = "Пользователь был успешно удалён из друзей. " +
                     "Если пользователь не найден, будет возвращен код состояния `BAD_REQUEST`",
-            content = @Content(mediaType = "text/plain")
+            content = @Content(mediaType = "application/json")
     )
     @PostMapping("/friends/{username}/remove")
     public ResponseEntity<?> removeUserAsFriend(@PathVariable String username,
                                                 @AuthenticationPrincipal User requesterUser) {
         try {
             userCommunityService.removeFriend(username, requesterUser);
-            return new ResponseEntity<>("Successfully removed " + username + " from your friends list.", HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Successfully removed " + username + " from your friends list."),
+                    HttpStatus.OK);
         } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 

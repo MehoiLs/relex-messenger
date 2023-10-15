@@ -9,10 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import root.general.community.data.dto.FriendRequestDTO;
 import root.general.community.exception.FriendRequestException;
 import root.general.community.services.FriendRequestsService;
 import root.general.main.data.User;
+import root.general.main.data.dto.DefaultMessageDTO;
 import root.general.main.exceptions.UserNotFoundException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/community/requests")
@@ -34,10 +38,12 @@ public class FriendsRequestsController {
     @ApiResponse(
             responseCode = "200",
             description = "Информация о запросах в друзья получена успешно.",
-            content = @Content(mediaType = "text/plain"))
+            content = @Content(mediaType = "application/json"))
     @GetMapping
-    public ResponseEntity<String> getAllFriendsRequests(@AuthenticationPrincipal User user) {
-        return new ResponseEntity<>(friendRequestsService.getAllFriendRequestsForUserAsString(user), HttpStatus.OK);
+    public ResponseEntity<List<FriendRequestDTO>> getAllFriendsRequests(@AuthenticationPrincipal User user) {
+        return new ResponseEntity<>(
+                friendRequestsService.getAllFriendRequestsForUserAsDtoList(user),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -47,15 +53,19 @@ public class FriendsRequestsController {
             responseCode = "200",
             description = "Пользователь был успешно добавлен в друзья. " +
                     "Если пользователь не найден, будет возвращен код состояния `BAD_REQUEST`",
-            content = @Content(mediaType = "text/plain"))
+            content = @Content(mediaType = "application/json"))
     @PostMapping("/accept/user/{sender}")
-    public ResponseEntity<String> acceptFriendRequest(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> acceptFriendRequest(@AuthenticationPrincipal User user,
                                                  @PathVariable String sender) {
         try {
             friendRequestsService.acceptFriendRequest(sender, user);
-            return new ResponseEntity<>("Added " + sender + " as friend!", HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Added " + sender + " as friend!"),
+                    HttpStatus.OK);
         } catch (UserNotFoundException | FriendRequestException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -65,11 +75,13 @@ public class FriendsRequestsController {
     @ApiResponse(
             responseCode = "200",
             description = "Все пользователи (если заявки были) были успешно добавлены в друзья.",
-            content = @Content(mediaType = "text/plain"))
+            content = @Content(mediaType = "application/json"))
     @PostMapping("/accept/all")
-    public ResponseEntity<String> acceptAllFriendRequests(@AuthenticationPrincipal User user) {
+    public ResponseEntity<DefaultMessageDTO> acceptAllFriendRequests(@AuthenticationPrincipal User user) {
         friendRequestsService.acceptAllFriendRequests(user);
-        return new ResponseEntity<>("Successfully accepted all friend requests!", HttpStatus.OK);
+        return new ResponseEntity<>(
+                new DefaultMessageDTO("Successfully accepted all friend requests!"),
+                HttpStatus.OK);
     }
 
     @Operation(
@@ -79,15 +91,19 @@ public class FriendsRequestsController {
             responseCode = "200",
             description = "Заявка на добавления в друзья была успешно отклонена. " +
                     "Если пользователь не найден, будет возвращен код состояния `BAD_REQUEST`",
-            content = @Content(mediaType = "text/plain"))
+            content = @Content(mediaType = "application/json"))
     @PostMapping("/deny/user/{sender}")
-    public ResponseEntity<String> denyFriendRequest(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> denyFriendRequest(@AuthenticationPrincipal User user,
                                                @PathVariable String sender) {
         try {
             friendRequestsService.denyFriendRequest(sender, user);
-            return new ResponseEntity<>("Denied " + sender + "'s friend request.", HttpStatus.OK);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO("Denied " + sender + "'s friend request."),
+                    HttpStatus.OK);
         } catch (UserNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(
+                    new DefaultMessageDTO(e.getMessage()),
+                    HttpStatus.BAD_REQUEST);
         }
 
     }
@@ -98,12 +114,13 @@ public class FriendsRequestsController {
     @ApiResponse(
             responseCode = "200",
             description = "Все заявки (если таковые были) на добавления в друзья были успешно отклонены.",
-            content = @Content(mediaType = "text/plain"))
+            content = @Content(mediaType = "application/json"))
     @PostMapping("/deny/all")
-    public ResponseEntity<String> denyAllFriendRequests(@AuthenticationPrincipal User user) {
+    public ResponseEntity<DefaultMessageDTO> denyAllFriendRequests(@AuthenticationPrincipal User user) {
         friendRequestsService.denyAllFriendRequests(user);
-        return new ResponseEntity<>("Successfully denied all friend requests.", HttpStatus.OK);
+        return new ResponseEntity<>(
+                new DefaultMessageDTO("Successfully denied all friend requests."),
+                HttpStatus.OK);
     }
-
 
 }

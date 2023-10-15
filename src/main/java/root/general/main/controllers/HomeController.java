@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import root.general.main.data.dto.DefaultMessageDTO;
 
 @RestController
 @Tag(
@@ -21,10 +22,12 @@ public class HomeController {
     @ApiResponse(
             responseCode = "200",
             description = "Информация о домашней странице успешно получена.",
-            content = @Content(mediaType = "text/plain"))
+            content = @Content(mediaType = "application/json"))
     @GetMapping("/home")
-    ResponseEntity<String> getHello() {
-        return new ResponseEntity<>("Hello! This is a home page.", HttpStatus.OK);
+    ResponseEntity<DefaultMessageDTO> getHello() {
+        return new ResponseEntity<>(
+                new DefaultMessageDTO("Hello! This is a home page."),
+                HttpStatus.OK);
     }
 
 }

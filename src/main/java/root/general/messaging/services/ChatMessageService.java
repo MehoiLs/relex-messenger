@@ -59,18 +59,18 @@ public class ChatMessageService {
                 senderId, recipientId, MessageStatus.DELIVERED);
     }
 
-    public String getAllNewMessagesAsString (Long userId) {
+    public List<ChatMessage> getAllNewMessages(Long userId) {
         List<ChatMessage> chatMessages =
                 chatMessageRepository.findByRecipientIdAndStatus(userId, MessageStatus.DELIVERED);
         chatMessages.forEach(this::updateMessageStatusToRead);
-        return MessagesUtils.buildStringFromMessagesList(chatMessages);
+        return chatMessages;
     }
 
-    public String getAllNewMessagesFromUserAsString (Long senderId, Long recipientId) {
+    public List<ChatMessage> getAllNewMessagesFromUser(Long senderId, Long recipientId) {
         List<ChatMessage> chatMessages = chatMessageRepository.findBySenderIdAndRecipientIdAndStatus(
                 senderId, recipientId, MessageStatus.DELIVERED);
         chatMessages.forEach(this::updateMessageStatusToRead);
-        return MessagesUtils.buildStringFromMessagesList(chatMessages);
+        return chatMessages;
     }
 
     public ResponseEntity<byte[]> getChatMessagesHistoryToDownload(Long senderId, Long recipientId) throws ChatServiceException {

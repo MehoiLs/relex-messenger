@@ -69,7 +69,7 @@ public class ChatPageController {
             model.addAttribute("user", user);
 
             response.addCookie(
-                    authenticationProvider.createCookieByToken(token) //TODO encode cookie?
+                    authenticationProvider.createCookieByToken(token)
             );
 
             return "redirect:/chat";
