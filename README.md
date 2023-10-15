@@ -230,9 +230,10 @@ Authorization: Bearer <token>
 ```
 
 
-### Подтвердить новую почту (по ссылке)
+### Подтвердить новую почту
 ```sh
 GET /profile/edit/email/confirm/{token}
+Authorization: Bearer <token>
 ```
 
 ### Получить аватарку пользователя
