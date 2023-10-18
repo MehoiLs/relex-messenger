@@ -294,7 +294,6 @@ Content-Type: application/json
 ```sh
 DELETE /profile/delete
 Authorization: Bearer <token>
-Content-Type: application/json
 ```
 Ответ:
 ```sh
