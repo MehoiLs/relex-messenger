@@ -44,10 +44,11 @@ public class UserValidationController {
             @PathVariable Long userIdToCheck,
             @PathVariable Long issuerId) throws UserNotFoundException {
 
-        boolean userIsAccessible = false;
+        boolean userIsAccessible;
 
         if (userService.getUserById(userIdToCheck).isAccessibilityFriendsOnly())
             userIsAccessible = userService.userIsFriendsWith(userIdToCheck, issuerId);
+        else userIsAccessible = true;
 
         Map<String, Boolean> response = Collections.singletonMap("accessible", userIsAccessible);
         return ResponseEntity.ok(response);
