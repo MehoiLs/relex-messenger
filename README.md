@@ -126,18 +126,6 @@ Authorization: Bearer <token>
 }
 ```
 
-## Домашняя страница
-```sh
-GET /home
-Authorization: Bearer <token>
-```
-Ответ:
-```sh
-{
-  "message": "Hello! This is a home page."
-}
-```
-
 ## Профиль пользователя
 ### Получить основную информацию
 ```sh
@@ -155,7 +143,6 @@ Authorization: Bearer <token>
   "lastName": "Surname",
   "email": "email@website.com",
   "role": "USER",
-  "friendsList": [],
   "locked": false
 }
 ```
@@ -325,9 +312,11 @@ Authorization: Bearer <token>
 ```
 Ответ:
 ```sh
-[
-  "<friend>"
-]
+{
+  "friends_list": [
+    "<friend>"
+  ]
+}
 ```
 
 ### Получить информацию о профиле конкретного пользователя
@@ -430,12 +419,14 @@ Authorization: Bearer <token>
 ```
 Ответ:
 ```sh
-[
-  {
-    "sender": "<username>",
-    "content": "<message>"
-  }
-]
+{
+  "chat_messages": [
+    {
+      "sender": "<username>",
+      "content": "<message>"
+    }
+  ]
+}
 ```
 
 ### Получить все непрочитанные сообщения от конкретного пользователя
