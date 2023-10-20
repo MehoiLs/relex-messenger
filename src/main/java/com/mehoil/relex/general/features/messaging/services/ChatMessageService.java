@@ -94,6 +94,7 @@ public class ChatMessageService {
     public ResponseEntity<InputStreamResource> getChatMessagesHistoryToDownload(Long senderId, Long recipientId) throws ChatServiceException {
         String chatId = MessagesUtils.getChatIdBySenderAndRecipient(senderId, recipientId);
         List<ChatMessage> chatMessages = chatMessageRepository.findByChatId(chatId);
+        chatMessages.forEach(this::updateMessageStatusToRead);
 
         if(chatMessages.isEmpty()) throw new ChatServiceException(
                 messageSource.getMessage("error-chat-messages-not-found-by-id", new Object[]{recipientId}, Locale.getDefault())
