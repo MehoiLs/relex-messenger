@@ -1,14 +1,14 @@
 package com.mehoil.relex.general.security.registration.data;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Value;
+import lombok.*;
 import com.mehoil.relex.general.user.data.User;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "registration_tokens")
 public class RegistrationToken {
@@ -19,14 +19,18 @@ public class RegistrationToken {
     private Long id;
 
     @Column(name = "token", nullable = false, unique = true)
-    private final String token;
+    private String token;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private final User user;
+    private User user;
 
     @Column(name = "expiration_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private final LocalDateTime expirationDate = LocalDateTime.now().plusDays(1);
 
+    public RegistrationToken(String token, User user) {
+        this.token = token;
+        this.user = user;
+    }
 }

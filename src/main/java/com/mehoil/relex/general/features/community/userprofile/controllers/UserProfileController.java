@@ -99,7 +99,7 @@ public class UserProfileController {
             content = @Content(mediaType = "application/json")
     )
     @PostMapping("/edit/email")
-    public ResponseEntity<DefaultMessageDTO> requestEditEmail(@AuthenticationPrincipal User user,
+    public ResponseEntity<DefaultMessageDTO> editUserEmail(@AuthenticationPrincipal User user,
                                                               @RequestBody UserProfileEmailDTO emailInfoDTO) throws UserProfileEditException, DatabaseRecordNotFoundException {
         String msg = userProfileService.requestChangeUserEmail(user, emailInfoDTO.getEmail());
         return new ResponseEntity<>(

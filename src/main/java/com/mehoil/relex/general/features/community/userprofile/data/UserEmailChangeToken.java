@@ -6,7 +6,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "email_change_tokens")
 public class UserEmailChangeToken {
@@ -17,17 +19,22 @@ public class UserEmailChangeToken {
     private Long id;
     
     @Column(name = "token", nullable = false, unique = true)
-    private final String token;
+    private String token;
 
     @Column(name = "new_email", nullable = false, unique = true)
-    private final String newEmail;
+    private String newEmail;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private final User user;
+    private User user;
 
     @Column(name = "expiration_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private final LocalDateTime expirationDate = LocalDateTime.now().plusWeeks(1);
 
+    public UserEmailChangeToken(String token, String newEmail, User user) {
+        this.token = token;
+        this.newEmail = newEmail;
+        this.user = user;
+    }
 }

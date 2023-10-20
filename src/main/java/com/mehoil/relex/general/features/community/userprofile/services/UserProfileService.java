@@ -81,6 +81,10 @@ public class UserProfileService {
 
         if(user.getEmail().equals(email))
             return messageSource.getMessage("profile-email-change-no-changes", null, Locale.getDefault());
+        if(!ValidationUtils.isValidEmail(email))
+            throw new UserProfileEditException(
+                    messageSource.getMessage("credentials-invalid-email", null, Locale.getDefault())
+            );
 
         userEmailChangeTokenEmailService.sendConfirmationEmail(user, email);
         log.info("[USER PROFILE SERVICE] User " + user.getLogin() + " has requested an e-mail change to \""

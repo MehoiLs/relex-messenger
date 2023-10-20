@@ -1,5 +1,6 @@
 package com.mehoil.relex.shared.exceptions.handler;
 
+import com.mehoil.relex.general.security.general.exceptions.UserIsNotEnabledException;
 import com.mehoil.relex.shared.dto.DefaultErrorMessageDTO;
 import com.mehoil.relex.database.exceptions.DatabaseRecordNotFoundException;
 import com.mehoil.relex.database.exceptions.TokenNotFoundException;
@@ -59,5 +60,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 ),
                 HttpStatus.BAD_REQUEST);
     }
+
+
 
 }

@@ -22,7 +22,7 @@ public class SecurityExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<DefaultErrorMessageDTO> handleBadCredentialsException(DatabaseRecordNotFoundException e) {
+    public ResponseEntity<DefaultErrorMessageDTO> handleBadCredentialsException(BadCredentialsException e) {
         return new ResponseEntity<>(
                 new DefaultErrorMessageDTO(
                         messageSource.getMessage("credentials-incorrect-login-or-password", null, Locale.getDefault())
@@ -31,7 +31,7 @@ public class SecurityExceptionHandler {
     }
 
     @ExceptionHandler(UserIsNotEnabledException.class)
-    public ResponseEntity<DefaultErrorMessageDTO> handleUserIsNotEnabledException(DatabaseRecordNotFoundException e) {
+    public ResponseEntity<DefaultErrorMessageDTO> handleUserIsNotEnabledException(UserIsNotEnabledException e) {
         return new ResponseEntity<>(
                 new DefaultErrorMessageDTO(
                         messageSource.getMessage("user-account-not-enabled", null, Locale.getDefault())
