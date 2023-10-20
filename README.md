@@ -330,19 +330,6 @@ Authorization: Bearer <token>
 ]
 ```
 
-### Удалить пользователя из списка друзей
-```sh
-POST /community/friends/{username}/remove
-Authorization: Bearer <token>
-```
-Ответ:
-```sh
-{
-  "message": "Successfully removed <friend> from your friends list."
-}
-```
-
-
 ### Получить информацию о профиле конкретного пользователя
 ```sh
 GET /community/users/{username}
