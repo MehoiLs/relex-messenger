@@ -47,7 +47,7 @@ class RegistrationTokenServiceTest {
     void testGetTokenSuccess () throws DatabaseRecordNotFoundException {
         List<RegistrationToken> tokens = getNewTokens();
         RegistrationToken token1 = tokens.get(0);
-        when(registrationTokensRepository.findById(token1.getToken()))
+        when(registrationTokensRepository.findByToken(token1.getToken()))
                 .thenReturn(Optional.of(token1));
 
         RegistrationToken result = registrationTokenService.getToken(token1.getToken());
@@ -57,7 +57,7 @@ class RegistrationTokenServiceTest {
     @Test
     void testGetTokenFail ()  {
         List<RegistrationToken> tokens = getNewTokens();
-        when(registrationTokensRepository.findById("faketoken"))
+        when(registrationTokensRepository.findByToken("faketoken"))
                 .thenReturn(Optional.empty());
 
         assertThrowsExactly(TokenNotFoundException.class,
@@ -69,7 +69,7 @@ class RegistrationTokenServiceTest {
         List<RegistrationToken> tokens = getNewTokens();
         RegistrationToken token1 = tokens.get(0);
         User user = token1.getUser();
-        when(registrationTokensRepository.findById(token1.getToken()))
+        when(registrationTokensRepository.findByToken(token1.getToken()))
                 .thenReturn(Optional.of(token1));
 
         User result =
@@ -81,7 +81,7 @@ class RegistrationTokenServiceTest {
     void testGetUserByRegistrationTokenFail () {
         List<RegistrationToken> tokens = getNewTokens();
         RegistrationToken token1 = tokens.get(0);
-        when(registrationTokensRepository.findById(token1.getToken()))
+        when(registrationTokensRepository.findByToken(token1.getToken()))
                 .thenReturn(Optional.empty());
 
         assertThrowsExactly(TokenNotFoundException.class,
@@ -135,7 +135,7 @@ class RegistrationTokenServiceTest {
     void testTokenIsExpiredByDateWhenOneDayPassed () {
         List<RegistrationToken> tokens = getNewTokens();
         RegistrationToken token1 = tokens.get(0);
-        when(registrationTokensRepository.findById(token1.getToken()))
+        when(registrationTokensRepository.findByToken(token1.getToken()))
                 .thenReturn(Optional.of(token1));
 
         LocalDateTime oneDayAfterRightNow = LocalDateTime.now().plusDays(1).plusMinutes(1);
@@ -146,7 +146,7 @@ class RegistrationTokenServiceTest {
     void testTokenIsExpiredByDateWhenOneMinutePassed () {
         List<RegistrationToken> tokens = getNewTokens();
         RegistrationToken token1 = tokens.get(0);
-        when(registrationTokensRepository.findById(token1.getToken()))
+        when(registrationTokensRepository.findByToken(token1.getToken()))
                 .thenReturn(Optional.of(token1));
 
         LocalDateTime rightNow = LocalDateTime.now().plusMinutes(1);
@@ -160,6 +160,7 @@ class RegistrationTokenServiceTest {
                 "this-is-a-random-entry",
                 user
         );
+
         when(registrationTokensRepository.save(any(RegistrationToken.class)))
                 .thenReturn(newToken);
 

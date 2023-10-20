@@ -103,7 +103,7 @@ class InvalidatedJwtTokensServiceTest {
                 .sign(algorithm);
 
         assertTrue(invalidatedJwtTokensService.tokenIsExpired(
-                new InvalidatedJwtToken(token, any(Date.class))));
+                new InvalidatedJwtToken(token, expiredYesterday)));
     }
 
     @Test
@@ -127,19 +127,19 @@ class InvalidatedJwtTokensServiceTest {
                 .sign(algorithm);
 
         assertFalse(invalidatedJwtTokensService.tokenIsExpired(
-                new InvalidatedJwtToken(token, any(Date.class))));
+                new InvalidatedJwtToken(token, expiresAt)));
     }
 
     @Test
     void testTokenIsInvalidatedTrue () {
-        when(tokensRepository.existsById("token"))
+        when(tokensRepository.existsByToken("token"))
                 .thenReturn(true);
         assertTrue(invalidatedJwtTokensService.tokenIsInvalidated("token"));
     }
 
     @Test
     void testTokenIsInvalidatedFalse () {
-        when(tokensRepository.existsById("token"))
+        when(tokensRepository.existsByToken("token"))
                 .thenReturn(false);
         assertFalse(invalidatedJwtTokensService.tokenIsInvalidated("token"));
     }
@@ -147,8 +147,8 @@ class InvalidatedJwtTokensServiceTest {
     @Test
     void testGetTokenSuccess () throws DatabaseRecordNotFoundException {
         String token = "token";
-        InvalidatedJwtToken invalidatedJwtToken = new InvalidatedJwtToken(token, any(Date.class));
-        when(tokensRepository.findById(token))
+        InvalidatedJwtToken invalidatedJwtToken = new InvalidatedJwtToken(token, AppUtils.getCurrentDatePlusOneDay());
+        when(tokensRepository.findByToken(token))
                 .thenReturn(Optional.of(invalidatedJwtToken));
         Assertions.assertEquals(invalidatedJwtToken,
                 invalidatedJwtTokensService.getToken(token));
@@ -158,7 +158,7 @@ class InvalidatedJwtTokensServiceTest {
     void testGetTokenFail () {
         String token = "faketoken";
         when(messageSource.getMessage(any(), any(), any())).thenReturn("text");
-        when(tokensRepository.findById(token))
+        when(tokensRepository.findByToken(token))
                 .thenReturn(Optional.empty());
         assertThrowsExactly(DatabaseRecordNotFoundException.class,
                 () -> invalidatedJwtTokensService.getToken(token));

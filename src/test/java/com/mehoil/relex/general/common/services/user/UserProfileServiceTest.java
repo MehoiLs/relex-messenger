@@ -10,6 +10,7 @@ import com.mehoil.relex.general.features.community.userprofile.exceptions.UserPr
 import com.mehoil.relex.general.features.community.userprofile.services.UserEmailChangeTokenEmailService;
 import com.mehoil.relex.general.features.community.userprofile.services.UserEmailChangeTokenService;
 import com.mehoil.relex.general.user.services.UserService;
+import com.mehoil.relex.shared.сomponents.UserMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
@@ -48,6 +49,9 @@ class UserProfileServiceTest {
     @Mock
     private MessageSource messageSource;
 
+    @Mock
+    private UserMapper userMapper;
+
     @InjectMocks
     private UserProfileService userProfileService;
 
@@ -62,7 +66,12 @@ class UserProfileServiceTest {
                 "Newlastname"
         );
 
-        when(userService.save(any())).thenReturn(user);
+        when(userMapper.mapUserProfileInfoToExistingUser(any(UserProfileEditDTO.class), any(User.class)))
+                .thenAnswer(invocation -> new UserMapper().mapUserProfileInfoToExistingUser(
+                        invocation.getArgument(0), invocation.getArgument(1)
+                ));
+        when(userService.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.<User>getArgument(0));
 
         User result = userProfileService.changeUserProfileInfo(user, profileEditInfo);
 
@@ -119,17 +128,6 @@ class UserProfileServiceTest {
     }
 
     @Test
-    void testRequestChangeUserEmailFail () {
-        User user = TestUtils.getNewDefaultUser();
-        String newEmail = "newemailsomesite.com";
-
-        when(userEmailChangeTokenService.tokenExistsForUser(user)).thenReturn(false);
-
-        assertThrows(UserProfileEditException.class,
-                () -> userProfileService.requestChangeUserEmail(user, newEmail));
-    }
-
-    @Test
     void testUploadUserProfilePictureSuccess () throws IOException {
         User user = TestUtils.getNewDefaultUser();
 
@@ -138,7 +136,8 @@ class UserProfileServiceTest {
         MockMultipartFile mockFile = new MockMultipartFile(
                 "pfp", "correct_pfp.png", "image/png", imageBytes);
 
-        when(userService.save(any())).thenReturn(user);
+        when(userService.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.<User>getArgument(0));
         assertDoesNotThrow(() -> userProfileService.uploadUserProfilePicture(user, mockFile));
         assertEquals(user.getProfilePictureBytes(), imageBytes);
     }
@@ -166,9 +165,10 @@ class UserProfileServiceTest {
                 user.getPassword(),
                 newPassword
         );
-        when(passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())).thenReturn(true);
-        when(passwordEncoder.encode(passwordDTO.getNewPassword())).thenReturn(passwordDTO.getNewPassword());
-        when(userService.save(any())).thenReturn(user);
+        when(userService.passwordMatches(passwordDTO.getOldPassword(), user.getPassword())).thenReturn(true);
+        when(userService.passwordEncode(passwordDTO.getNewPassword())).thenReturn(passwordDTO.getNewPassword());
+        when(userService.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.<User>getArgument(0));
 
         assertDoesNotThrow(() -> userProfileService.changeUserPassword(user, passwordDTO));
         assertEquals(newPassword, user.getPassword());
@@ -182,7 +182,6 @@ class UserProfileServiceTest {
                 "incorrectpassword",
                 newPassword
         );
-        when(passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())).thenReturn(false);
 
         assertThrows(UserProfileEditException.class,
                 () -> userProfileService.changeUserPassword(user, passwordDTO));

@@ -87,6 +87,7 @@ class CommunityServiceTest {
 
         when(userService.getUserByUsername(user2.getUsername())).thenReturn(user2);
         when(messageSource.getMessage(any(), any(), any())).thenReturn("text");
+        when(userService.userIsFriendsWith(any(), any())).thenReturn(true);
         doAnswer(invocation -> {
             User user = invocation.getArgument(0);
             User friend = invocation.getArgument(1);

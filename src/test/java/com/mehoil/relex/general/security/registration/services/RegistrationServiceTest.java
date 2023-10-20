@@ -43,7 +43,8 @@ class RegistrationServiceTest {
 
         when(userService.getUserByLogin(anyString()))
                 .thenThrow(UserNotFoundException.class);
-        when(userService.save(any())).thenReturn(newUser);
+        when(userService.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.<User>getArgument(0));
         when(passwordEncoder.encode(newUser.getPassword()))
                 .thenReturn("encodedpassword");
         when(messageSource.getMessage(any(), any(), any())).thenReturn("an info message");
@@ -134,7 +135,7 @@ class RegistrationServiceTest {
         when(registrationTokenService.getUserByRegistrationToken(registrationToken))
                 .thenReturn(registeredUser);
         when(userService.save(any(User.class)))
-                .thenReturn(registeredUser);
+                .thenAnswer(invocation -> invocation.<User>getArgument(0));
         when(messageSource.getMessage(any(), any(), any())).thenReturn("an info message");
 
         assertDoesNotThrow(() -> registrationService.confirmAccount(registrationToken));
