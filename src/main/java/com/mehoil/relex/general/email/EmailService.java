@@ -1,13 +1,19 @@
 package com.mehoil.relex.general.email;
 
+import com.sun.mail.util.MailConnectException;
+import jakarta.mail.MessagingException;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.net.ConnectException;
 import java.util.Arrays;
 
 @Slf4j
@@ -16,28 +22,19 @@ public class EmailService {
 
     private final JavaMailSender javaMailSender;
 
-    private final int maxSendRetries = 3;
-
     public EmailService(JavaMailSender mailSender) {
         this.javaMailSender = mailSender;
     }
 
     @Async
+    @Retryable(
+            retryFor = { MailException.class },
+            backoff = @Backoff(delay = 10000)
+    )
     public void sendEmailAsync(@NonNull SimpleMailMessage mailMessage) {
         if(mailMessage.getTo() == null) return;
-
-        int currentRetry = 1;
-        while (currentRetry <= maxSendRetries) {
-            try {
-                javaMailSender.send(mailMessage);
-                log.info("[MAIL SERVICE] The letter: \"" + mailMessage.getSubject() + "\" has been successfully sent to " +
-                        Arrays.toString(mailMessage.getTo()) + ".");
-                break;
-            } catch (MailException e) {
-                log.warn("[MAIL SERVICE] Attempt " + currentRetry + " to resend the letter: \"" + mailMessage.getSubject() + "\"...");
-                currentRetry++;
-                try { Thread.sleep(10000); } catch (InterruptedException ignored) {}
-            }   // TODO TRY SOMETHING ELSE (MAYBE TRY SCHEDULING IT WITH INTERVAL 10 SECS)
-        }       // TODO CHANGE EMAIL TO NEW
+        javaMailSender.send(mailMessage);
+        log.info("[MAIL SERVICE] The letter: \"" + mailMessage.getSubject() + "\" has been successfully sent to " +
+                Arrays.toString(mailMessage.getTo()) + ".");
     }
 }

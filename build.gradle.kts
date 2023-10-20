@@ -30,6 +30,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("org.springframework.boot:spring-boot-starter-websocket")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+	implementation("org.springframework.boot:spring-boot-starter-batch")
 	implementation("com.auth0:java-jwt:4.4.0")
 	implementation("org.jetbrains:annotations:24.0.0")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
